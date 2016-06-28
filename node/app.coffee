@@ -6,6 +6,9 @@ app=express()
 app.get '/',(req,res)->
   res.send 'Hello world!'
 
+app.get '/r',(req,res)->
+  res.send ls('R')
+
 app.use(express.static 'www')
 
 PORT=6666
