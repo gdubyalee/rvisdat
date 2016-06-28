@@ -1,4 +1,5 @@
 #!/usr/local/bin/coffee
+require 'shelljs/global'
 express=require 'express'
 app=express()
 
