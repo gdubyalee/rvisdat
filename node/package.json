@@ -1,0 +1,15 @@
+{
+  "name": "rvisdat",
+  "version": "0.0.1",
+  "description": "Data visualisation using html5 graphs experiment",
+  "main": "app.coffee",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "George Lee",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "chart.js": "^2.1.6",
+    "express": "^4.14.0"
+  }
+}

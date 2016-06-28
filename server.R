@@ -1,6 +1,8 @@
 library(DriftR)
 library(stringr)
 library(InferCryptDrift)
+source('pchase/pchaseutils.R')
+source('ctslab/ctslabutils.R')
 
 #Start up our server...
 library(shiny)
