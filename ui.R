@@ -14,9 +14,11 @@ shinyUI(fluidPage(
     plotOutput('mcmc'),
     #actionButton('viewMcmcFS','View MCMC fitting plot'),
     #bsModal('mcmcModal','Mcmc plot','viewMcmcFS',plotOutput('mcmc')),
-    plotOutput('convergence')
+    plotOutput('convergence'),
+    width=6
   ),
   sidebarPanel(
-    h3('Continuous labelling data')
+    h3('Continuous labelling data'),
+    width=6
   )
 ))

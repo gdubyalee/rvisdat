@@ -1,0 +1,17 @@
+DriftR-package          What the package does (short line) ~~ package
+                        title ~~
+addMissingVals          Add clones that haven't been counted If clones
+                        haven't been counted they don't appear rather
+                        than count as zero
+format_exp_data         Calculate proportions with 95% credible
+                        interval (confidence interval). If there are
+                        replicates they will be pooled(!). It will work
+                        for both count table format and list format.
+format_list2tbl         Transform list format to table format with
+                        clone size along rows and time points along
+                        cols. Will return time points as colnames. This
+                        is the format used for inference If a clone
+                        size does not appear in any data point it will
+                        not be included (!!!)
+format_tbl2list         Transform tbl format to list format. Useful for
+                        ggplot plotting

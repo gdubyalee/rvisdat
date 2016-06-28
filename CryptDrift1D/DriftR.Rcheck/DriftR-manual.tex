@@ -1,0 +1,128 @@
+\nonstopmode{}
+\documentclass[a4paper]{book}
+\usepackage[times,inconsolata,hyper]{Rd}
+\usepackage{makeidx}
+\usepackage[utf8,latin1]{inputenc}
+% \usepackage{graphicx} % @USE GRAPHICX@
+\makeindex{}
+\begin{document}
+\chapter*{}
+\begin{center}
+{\textbf{\huge Package `DriftR'}}
+\par\bigskip{\large \today}
+\end{center}
+\begin{description}
+\raggedright{}
+\item[Type]\AsIs{Package}
+\item[Title]\AsIs{What the package does (short line)}
+\item[Version]\AsIs{1.0}
+\item[Date]\AsIs{2014-09-27}
+\item[Author]\AsIs{Who wrote it}
+\item[Maintainer]\AsIs{Who to complain to }\email{yourfault@somewhere.net}\AsIs{}
+\item[Description]\AsIs{More about what it does (maybe more than one line)}
+\item[License]\AsIs{What license is it under?}
+\item[Depends]\AsIs{tidyr, dplyr, ggplot2}
+\item[Imports]\AsIs{Rcpp (>= 0.11.2), RcppArmadillo (>= 0.4.400.0)}
+\item[LinkingTo]\AsIs{Rcpp, RcppArmadillo}
+\item[NeedsCompilation]\AsIs{yes}
+\end{description}
+\Rdcontents{\R{} topics documented:}
+\inputencoding{utf8}
+\HeaderA{DriftR-package}{What the package does (short line) \textasciitilde{}\textasciitilde{} package title \textasciitilde{}\textasciitilde{}}{DriftR.Rdash.package}
+\aliasA{DriftR}{DriftR-package}{DriftR}
+\keyword{package}{DriftR-package}
+%
+\begin{Description}\relax
+More about what it does (maybe more than one line)
+\textasciitilde{}\textasciitilde{} A concise (1-5 lines) description of the package \textasciitilde{}\textasciitilde{}
+\end{Description}
+%
+\begin{Details}\relax
+
+\Tabular{ll}{
+Package: & DriftR\\{}
+Type: & Package\\{}
+Version: & 1.0\\{}
+Date: & 2014-09-27\\{}
+License: & What license is it under?\\{}
+}
+\textasciitilde{}\textasciitilde{} An overview of how to use the package, including the most important \textasciitilde{}\textasciitilde{}
+\textasciitilde{}\textasciitilde{} functions \textasciitilde{}\textasciitilde{}
+\end{Details}
+%
+\begin{Author}\relax
+Who wrote it
+
+Maintainer: Who to complain to <yourfault@somewhere.net>
+\textasciitilde{}\textasciitilde{} The author and/or maintainer of the package \textasciitilde{}\textasciitilde{}
+\end{Author}
+%
+\begin{References}\relax
+\textasciitilde{}\textasciitilde{} Literature or other references for background information \textasciitilde{}\textasciitilde{}
+\end{References}
+%
+\begin{SeeAlso}\relax
+\textasciitilde{}\textasciitilde{} Optional links to other man pages, e.g. \textasciitilde{}\textasciitilde{}
+\textasciitilde{}\textasciitilde{} \code{\LinkA{<pkg>}{<pkg>}} \textasciitilde{}\textasciitilde{}
+\end{SeeAlso}
+%
+\begin{Examples}
+\begin{ExampleCode}
+~~ simple examples of the most important functions ~~
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{addMissingVals}{Add clones that haven't been counted If clones haven't been counted they don't appear rather than count as zero}{addMissingVals}
+%
+\begin{Description}\relax
+Add clones that haven't been counted
+If clones haven't been counted they don't appear rather than
+count as zero
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+addMissingVals(data_Nths, frac_size)
+\end{verbatim}
+\end{Usage}
+\inputencoding{utf8}
+\HeaderA{format\_exp\_data}{Calculate proportions with 95\% credible interval (confidence interval). If there are replicates they will be pooled(!). It will work for both count table format and list format.}{format.Rul.exp.Rul.data}
+%
+\begin{Description}\relax
+Calculate proportions with 95\% credible interval (confidence interval).
+If there are replicates they will be pooled(!). It will work for both count table format and list format.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+format_exp_data(data_x, time_points = NULL, clone_fractions = NULL)
+\end{verbatim}
+\end{Usage}
+\inputencoding{utf8}
+\HeaderA{format\_list2tbl}{Transform list format to table format with clone size along rows and time points along cols. Will return time points as colnames. This is the format used for inference If a clone size does not appear in any data point it will not be included (!!!)}{format.Rul.list2tbl}
+%
+\begin{Description}\relax
+Transform list format to table format with clone size along rows and time points
+along cols. Will return time points as colnames. This is the format used for inference
+If a clone size does not appear in any data point it will not be included (!!!)
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+format_list2tbl(list_x, condition_filter, clone_fractions = NULL)
+\end{verbatim}
+\end{Usage}
+\inputencoding{utf8}
+\HeaderA{format\_tbl2list}{Transform tbl format to list format. Useful for ggplot plotting}{format.Rul.tbl2list}
+%
+\begin{Description}\relax
+Transform tbl format to list format. Useful for ggplot plotting
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+format_tbl2list(tbl_x, time_points, condition = "Condition1")
+\end{verbatim}
+\end{Usage}
+\printindex{}
+\end{document}

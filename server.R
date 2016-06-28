@@ -38,7 +38,7 @@ shinyServer(function(input,output){
           times,
           params,
           max_x=100,
-          paste0('Pulse chase data for ',input$searchStr)
+          input$searchStr
         )
         saveRDS(neutralDriftFitted,paste0('data/mcmc_',input$searchStr))
       }else{

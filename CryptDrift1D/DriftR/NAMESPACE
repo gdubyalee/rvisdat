@@ -1,0 +1,6 @@
+useDynLib(DriftR)
+import(RcppArmadillo)
+import(ggplot2)
+importFrom(Rcpp, evalCpp)
+exportPattern("^[[:alpha:]]+")
+#export(sim_contLabelling, th_PulseChase, th_contLabelling, plotPulseChase) #, plotContLabel)

@@ -1,0 +1,11 @@
+Package: InferCryptDrift
+Type: Package
+Title: Fit crypt stem cell drift models to data
+Version: 0.1
+Date: 2015-07-02
+Author: Ed
+Depends: foreach, doMC, DriftR, ggplot2, compiler, gridExtra, grid
+Maintainer: <edward.morrissey@gmail.com>
+Description: Functions to fit both neutral and biased drift models to 1D clone data
+License: What license is it under?
+LazyLoad: yes

@@ -1,0 +1,175 @@
+* using log directory ‘/Users/morris34/Desktop/CryptDrift_R_1.12.15/CryptDrift1D/DriftR.Rcheck’
+* using R version 3.2.1 (2015-06-18)
+* using platform: x86_64-apple-darwin13.4.0 (64-bit)
+* using session charset: UTF-8
+* checking for file ‘DriftR/DESCRIPTION’ ... OK
+* checking extension type ... Package
+* this is package ‘DriftR’ version ‘1.0’
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking whether package ‘DriftR’ can be installed ... WARNING
+Found the following significant warnings:
+  Warning: /Users/morris34/Desktop/CryptDrift_R_1.12.15/CryptDrift1D/DriftR.Rcheck/00_pkg_src/DriftR/man/DriftR-package.Rd:33: All text must be in a section
+  Warning: /Users/morris34/Desktop/CryptDrift_R_1.12.15/CryptDrift1D/DriftR.Rcheck/00_pkg_src/DriftR/man/DriftR-package.Rd:34: All text must be in a section
+See ‘/Users/morris34/Desktop/CryptDrift_R_1.12.15/CryptDrift1D/DriftR.Rcheck/00install.out’ for details.
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... NOTE
+Malformed Description field: should contain one or more complete sentences.
+Non-standard license specification:
+  What license is it under?
+Standardizable: FALSE
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
+* checking dependencies in R code ... NOTE
+Packages in Depends field not imported from:
+  ‘dplyr’ ‘tidyr’
+  These packages need to be imported from (in the NAMESPACE file)
+  for when this namespace is loaded but not attached.
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... NOTE
+addMissingVals: no visible global function definition for ‘%>%’
+addMissingVals: no visible global function definition for ‘group_by’
+addMissingVals: no visible binding for global variable ‘Condition’
+addMissingVals: no visible binding for global variable ‘Age’
+addMissingVals: no visible global function definition for ‘summarise’
+addMissingVals: no visible binding for global variable ‘Nths’
+addMissingVals: no visible global function definition for ‘str_split’
+format_exp_data: no visible global function definition for ‘%>%’
+format_exp_data: no visible global function definition for ‘mutate’
+format_exp_data: no visible binding for global variable ‘CloneSize’
+format_exp_data: no visible global function definition for ‘group_by’
+format_exp_data: no visible binding for global variable ‘Condition’
+format_exp_data: no visible binding for global variable ‘Nths’
+format_exp_data: no visible binding for global variable ‘Day’
+format_exp_data: no visible global function definition for ‘summarise’
+format_exp_data: no visible global function definition for ‘n’
+format_exp_data: no visible binding for global variable ‘Counts’
+format_exp_data: no visible binding for global variable ‘TotalCounts’
+format_exp_data: no visible global function definition for
+  ‘str_replace’
+format_exp_data: no visible global function definition for ‘select’
+format_exp_data: no visible binding for global variable ‘Age’
+format_exp_data: no visible binding for global variable ‘value’
+format_exp_data: no visible binding for global variable ‘low_lim’
+format_exp_data: no visible binding for global variable ‘hi_lim’
+format_list2tbl: no visible global function definition for ‘%>%’
+format_list2tbl: no visible binding for global variable ‘Condition’
+format_list2tbl: no visible global function definition for ‘select’
+format_list2tbl: no visible global function definition for ‘mutate’
+format_list2tbl: no visible binding for global variable ‘CloneSize’
+format_list2tbl: no visible global function definition for
+  ‘str_extract’
+format_list2tbl: no visible binding for global variable ‘Day’
+format_list2tbl: no visible global function definition for ‘group_by’
+format_list2tbl: no visible binding for global variable ‘num_Age’
+format_list2tbl: no visible global function definition for ‘summarise’
+format_list2tbl: no visible global function definition for ‘n’
+format_list2tbl: no visible global function definition for ‘spread’
+format_list2tbl: no visible binding for global variable ‘Counts’
+format_th_data: no visible global function definition for ‘%>%’
+format_th_data: no visible global function definition for ‘gather’
+format_th_data: no visible binding for global variable ‘Nths’
+format_th_data: no visible binding for global variable ‘value’
+format_th_data: no visible binding for global variable ‘Age’
+format_th_data: no visible binding for global variable ‘Condition’
+makeFractions: no visible global function definition for ‘melt’
+plotPulseChase: no visible global function definition for ‘melt’
+plotPulseChase: no visible binding for global variable ‘Age’
+plotPulseChase: no visible binding for global variable ‘value’
+plotPulseChase: no visible binding for global variable ‘se’
+* checking Rd files ... WARNING
+prepare_Rd: DriftR-package.Rd:33: All text must be in a section
+prepare_Rd: DriftR-package.Rd:34: All text must be in a section
+* checking Rd metadata ... OK
+* checking Rd cross-references ... WARNING
+Unknown package ‘<pkg>’ in Rd xrefs
+* checking for missing documentation entries ... WARNING
+Undocumented code objects:
+  ‘CA30Function_MonoClonal’ ‘CA30Function_PartialClones’
+  ‘Crypt_drift_c’ ‘LinearGillespie’ ‘calcMean’ ‘expandData’
+  ‘format_th_data’ ‘makeFractions’ ‘normalise.counts’ ‘plotPulseChase’
+  ‘se.counts.multinom’ ‘sim_contLabelling’ ‘th_PulseChase’
+  ‘th_contLabelling’
+All user-level objects in a package should have documentation entries.
+See chapter ‘Writing R documentation files’ in the ‘Writing R
+Extensions’ manual.
+* checking for code/documentation mismatches ... WARNING
+Codoc mismatches from documentation object 'format_exp_data':
+format_exp_data
+  Code: function(data_x, time_points = NULL, clone_fractions = NULL,
+                 condition = "Condition1")
+  Docs: function(data_x, time_points = NULL, clone_fractions = NULL)
+  Argument names in code not in docs:
+    condition
+
+* checking Rd \usage sections ... WARNING
+Undocumented arguments in documentation object 'addMissingVals'
+  ‘data_Nths’ ‘frac_size’
+
+Undocumented arguments in documentation object 'format_exp_data'
+  ‘data_x’ ‘time_points’ ‘clone_fractions’
+
+Undocumented arguments in documentation object 'format_list2tbl'
+  ‘list_x’ ‘condition_filter’ ‘clone_fractions’
+
+Undocumented arguments in documentation object 'format_tbl2list'
+  ‘tbl_x’ ‘time_points’ ‘condition’
+
+Functions with \usage entries need to have the appropriate \alias
+entries, and all their arguments documented.
+The \usage entries must correspond to syntactically valid R code.
+See chapter ‘Writing R documentation files’ in the ‘Writing R
+Extensions’ manual.
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... WARNING
+Warning: parse error in file 'DriftR-Ex.R':
+20:11: unexpected symbol
+19: 
+20: ~~ simple examples
+              ^
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking line endings in Makefiles ... OK
+* checking compilation flags in Makevars ... OK
+* checking for GNU extensions in Makefiles ... OK
+* checking for portable use of $(BLAS_LIBS) and $(LAPACK_LIBS) ... OK
+* checking compiled code ... OK
+* checking examples ... ERROR
+Running examples in ‘DriftR-Ex.R’ failed
+The error most likely occurred in:
+
+> ### Name: DriftR-package
+> ### Title: What the package does (short line) ~~ package title ~~
+> ### Aliases: DriftR-package DriftR
+> ### Keywords: package
+> 
+> ### ** Examples
+> 
+> ~~ simple examples of the most important functions ~~
+Error: unexpected symbol in "~~ simple examples"
+Execution halted
+* checking PDF version of manual ... WARNING
+LaTeX errors when creating PDF version.
+This typically indicates Rd problems.
+* checking PDF version of manual without hyperrefs or index ... ERROR
+Re-running with no redirection of stdout/stderr.
+* DONE
+Status: 2 ERRORs, 8 WARNINGs, 3 NOTEs
