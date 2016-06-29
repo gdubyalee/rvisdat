@@ -7,10 +7,10 @@
 <div class='container'>
   <div class="row">
     <div class="col-md-6">
-      <canvas id="myChart" width="100%" height="100%"></canvas>
+      <canvas id="chart1" width="100%" height="100%"></canvas>
     </div>
     <div class="col-md-6">
-      wqereqrtewfdsw
+      <canvas id="chart2" width="100%" height="100%"></canvas>
     </div>
   </div>
 </div>
@@ -31,32 +31,10 @@ var xVals=[0,1,2,3,4,5]
 var f=[]
 xVals.forEach((x)=>{f.push({x:x,y:myFun(x)})})
 
-var myChart= new Chart(ctx,{
-  //label:'value of myFun',
-  type:'line',
-  data:{
-    datasets:[{
-      label:'Value of f',
-      data:f
-    }]
-  },
-  //borderwidth:1,
-  options:{
-    scales:{
-      xAxes:[{
-        type:'linear',
-        position:'bottom'
-      }]
-    }
-  }
-})
-
-setTimeout(()=>{
-
-  f=[]
-  xVals.forEach((x)=>{f.push({x:x,y:myCube(x)})})
-
-  var myChart= new Chart(ctx,{
+/*
+var myChart= new Chart(
+  ctx,
+  {
     //label:'value of myFun',
     type:'line',
     data:{
@@ -74,9 +52,59 @@ setTimeout(()=>{
         }]
       }
     }
-  })
+  }
+)
+*/
 
+var cv1=$('#chart1'),cv2=$('#chart2')
+var chart1,chart2
+//graphF =[{x:...,y:...},...]
+drawChart=(canvas,graphF,label)=>{
+  return(new Chart(
+    canvas,
+    {
+      type:'line',
+      data:{
+        datasets:[{
+          label:label,
+          data:graphF 
+        }]
+      },
+      options:{
+        scales:{
+          xAxes:[{
+            type:'linear',
+            position:'bottom'
+          }]
+        }
+      }
+    }
+  ))
+}
+
+updateChartVals=(chart,newVals,datasetIndex)=>{
+  //Coerce dataset index to number, 0 by default
+  datasetIndex|=0
+  if(chart.data.datasets[datasetIndex])chart.data.datasets[datasetIndex].data=newVals
+  else chart.data.datasets[datasetIndex]={data:newVals}
+  chart.update()
+}
+
+
+
+//Testing stuff
+
+var pulseChaseChart=drawChart(cv1,f,'A nice graph')
+
+f[2]={x:2,y:1}
+setTimeout(()=>{
+  updateChartVals(pulseChaseChart,f)
 },5000)
+
+var f2=[]
+xVals.forEach((x)=>{f2.push({x:x,y:myCube(x)})})
+
+setTimeout(()=>{updateChartVals(pulseChaseChart,f2,1)},6000)
 
 </script>
 </body></html>
