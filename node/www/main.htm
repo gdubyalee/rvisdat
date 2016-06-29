@@ -1,56 +1,36 @@
 <!DOCTYPE html>
 <html lang='en'><head>
-<link rel="stylesheet" href="bootstrap.css"  media="all">
-<link rel="stylesheet" href="bootstrap-responsive.css"  media="all">
-<link rel="stylesheet" href="bootstrap-theme.css"  media="all">
-<style>
-.appboxl {
-  border: 2px solid;
-  width:48%;
-  height:48%;
-  float:left;
-  margin:5px;
-}
-.appboxr {
-  border: 2px solid;
-  width:48%;
-  height:48%;
-  float:right;
-  margin:5px;
-}
-.input-group{
-  border:1px solid;
-  margin:5px;
-  padding:5px;
-  width:140%;
-}
-</style>
-<!--
-<link rel="stylesheet" href="bootstrap-theme.css"  media="all">
-<link rel="stylesheet" href="normalize.css"  media="all">
--->
+<link rel="stylesheet" href="css/bootstrap.css"  media="all">
+<link rel="stylesheet" href="css/bootstrap-responsive.css"  media="all">
+<link rel="stylesheet" href="css/bootstrap-theme.css"  media="all">
+<link rel="stylesheet" href="css/main.css"  media="all">
 </head>
 <body>
+
+
 <div class="appboxl">
-  <div class='span2'>
+
+  <div class='span2' id='paramPanel'>
     <h4>Parameters</h4>
 
     <div class='input-group'>
       &lambda;:
-      <input type='range' min=0 max=10 step=0.01 id='lambdaslider' oninput='$("#lambda").val($("#lambdaslider").val());updateParam("lambda")'>
-      <input type='number' id='lambda' min=0 max=10 step='any' oninput='updateParam("lambda")'>
+      <input type='range' style='width:90%' min=0 max=10 step=0.01 id='lambdaslider' oninput='$("#lambda").val($("#lambdaslider").val());updateParam("lambda")'>
+      <input type='number' style='width:90%' id='lambda' min=0 max=10 step='any' oninput='updateParam("lambda")'>
     </div>
     <br>
+
     <div class='input-group'>
       &tau;:
-      <input type='range' min=0 max=10 step=0.01 id='tauslider' oninput='$("#tau").val($("#tauslider").val());updateParam("tau")'>
-      <input type='number' id='tau' min=0 max=10 step='any' oninput='updateParam("tau")'>
+      <input type='range' style='width:90%' min=0 max=10 step=0.01 id='tauslider' oninput='$("#tau").val($("#tauslider").val());updateParam("tau")'>
+      <input type='number' style='width:90%' id='tau' min=0 max=10 step='any' oninput='updateParam("tau")'>
     </div>
     <br>
+
     <div class='input-group'>
       N:
-      <input type='range' min=0 max=10 step=1 id='Nslider' oninput='$("#N").val($("#Nslider").val());updateParam("N")'>
-      <input type='number' id='N' min=0 max=10 step=1 oninput='updateParam("N")'>
+      <input type='range' style='width:90%' min=0 max=10 step=1 id='Nslider' oninput='$("#N").val($("#Nslider").val());updateParam("N")'>
+      <input type='number' style='width:90%' id='N' min=0 max=10 step=1 oninput='updateParam("N")'>
     </div>
 
   </div>
@@ -64,75 +44,9 @@
   </div>
 </div>
 
-<script src='jquery-2.2.4.min.js'></script>
-<script src="bootstrap.min.js"></script>
-<script src='Chart.bundle.min.js'></script>
-<script>
-var myFun=(x)=>{
-  return x*x
-}
-var myCube=(x)=>{
-  return x*x*x
-}
-
-var xVals=[0,1,2,3,4,5]
-var f=[]
-xVals.forEach((x)=>{f.push({x:x,y:myFun(x)})})
-
-var cv1=$('#chart1'),cv2=$('#chart2')
-var chart1,chart2
-//graphF =[{x:...,y:...},...]
-drawChart=(canvas,graphF,label)=>{
-  return(new Chart(
-    canvas,
-    {
-      type:'line',
-      data:{
-        datasets:[{
-          label:label,
-          data:graphF 
-        }]
-      },
-      options:{
-        scales:{
-          xAxes:[{
-            type:'linear',
-            position:'bottom'
-          }]
-        }
-      }
-    }
-  ))
-}
-
-updateChartVals=(chart,newVals,datasetIndex)=>{
-  //Coerce dataset index to number, 0 by default
-  datasetIndex|=0
-  if(chart.data.datasets[datasetIndex])chart.data.datasets[datasetIndex].data=newVals
-  else chart.data.datasets[datasetIndex]={data:newVals}
-  chart.update()
-}
-
-var params={}
-updateParam=(param)=>{
-  params[param]=parseFloat($('#'+param).val())
-}
-
-
-
-//Testing stuff
-
-var pulseChaseChart=drawChart(cv1,f,'A nice graph')
-
-f[2]={x:2,y:1}
-setTimeout(()=>{
-  updateChartVals(pulseChaseChart,f)
-},5000)
-
-var f2=[]
-xVals.forEach((x)=>{f2.push({x:x,y:myCube(x)})})
-
-setTimeout(()=>{updateChartVals(pulseChaseChart,f2,1)},6000)
-
-</script>
+<script src='js/jquery-2.2.4.min.js'></script>
+<script src="js/bootstrap.min.js"></script>
+<script src='js/Chart.bundle.min.js'></script>
+<script src='js/drift.js'> </script>
+<script src='js/main.js'> </script>
 </body></html>

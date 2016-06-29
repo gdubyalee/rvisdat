@@ -1,0 +1,21 @@
+.appboxl {
+  border: 2px solid;
+  width:48%;
+  height:48%;
+  float:left;
+  margin:5px;
+}
+.appboxr {
+  border: 2px solid;
+  width:48%;
+  height:48%;
+  float:right;
+  margin:5px;
+}
+.input-group{
+  border:1px solid;
+  margin:5px;
+  padding:5px;
+  width:100%;
+}
+
