@@ -4,7 +4,7 @@ express=require 'express'
 app=express()
 
 app.get '/',(req,res)->
-  res.send 'Hello world!'
+  res.redirect 'main.htm'
 
 app.get '/r',(req,res)->
   res.send ls('R')
