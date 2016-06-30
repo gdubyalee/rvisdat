@@ -1,8 +1,10 @@
+library(dplyr)
+library(tidyr)
 library(DriftR)
 library(stringr)
 library(InferCryptDrift)
-source('pchase/pchaseutils.R')
-source('ctslab/ctslabutils.R')
+#source('pchase/pchaseutils.R')
+#source('ctslab/ctslabutils.R')
 
 #Start up our server...
 library(shiny)
@@ -13,25 +15,16 @@ shinyServer(function(input,output){
   #  readRDS(paste0('data/',input$searchStr))
   #}})
 
-  output$convergence<-renderPlot({
-    if(input$plotConvergence){
-      cryptData<-readRDS(paste0('data/',input$searchStr))
-      times<-strtoi(substring(names(cryptData),2))
-      if(!file.exists(paste0('data/neutdrift_',input$searchStr))||input$forceRedo){
-        neutralDrift<-fitNeutralDrift(cryptData,times)
-        saveRDS(neutralDrift,paste0('data/neutdrift_',input$searchStr))
-      }else{
-        neutralDrift<-readRDS(paste0('data/neutdrift_',input$searchStr))
-      }
-      plotsConvergence_Neutral(neutralDrift)
-    }
-  })
 
   rp<-renderPlot({
     if(input$doMcmc){
       #Cache analysis once it's been done on a dataset
-      if(!file.exists(paste0('data/mcmc_',input$searchStr))||input$forceRedo){
-        cryptData<-readRDS(paste0('data/',input$searchStr))
+      if(
+        !file.exists(paste0('cache/mcmc_',input$searchStr))
+        ||
+        input$forceRedo
+      ){
+        cryptData<-readRDS(paste0('cache/',input$searchStr))
         times<-strtoi(substring(names(cryptData),2))
         neutralDrift<-fitNeutralDrift(cryptData,times)
         params<-getNeutralDirftParams(neutralDrift)
@@ -42,9 +35,9 @@ shinyServer(function(input,output){
           max_x=100,
           input$searchStr
         )
-        saveRDS(neutralDriftFitted,paste0('data/mcmc_',input$searchStr))
+        saveRDS(neutralDriftFitted,paste0('cache/mcmc_',input$searchStr))
       }else{
-        neutralDriftFitted<-readRDS(paste0('data/mcmc_',input$searchStr))
+        neutralDriftFitted<-readRDS(paste0('cache/mcmc_',input$searchStr))
       }
       plot(neutralDriftFitted)
     }
