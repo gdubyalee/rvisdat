@@ -24,8 +24,8 @@ populateAvailableDatasets=function(){
 }
 
 #Assume that the names are of the form 'X<day number>'
-fitNeutralDriftWithTimes=function(neutralDriftData){
-  return(fitNeutralDrift(neutralDriftData,strtoi(substring(names(neutralDriftData),2))))
+getNeutralDriftParams=function(neutralDriftData){
+  return(getNeutralDirftParams(fitNeutralDrift(neutralDriftData,strtoi(substring(names(neutralDriftData),2)))))
 }
 
 #Updates the cache to contain our processed data
