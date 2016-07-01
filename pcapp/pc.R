@@ -12,10 +12,9 @@ serve=function(input,output){
   output$availableDatasets<-renderUI({
     checkboxGroupInput('datasets','Visualise datasets:',populateAvailableDatasets())
   })
-  output$driftPLots<-renderPlot({
+  output$driftPlots<-renderPlot({
   })
   output$expectedNumberClonesPlot<-renderPlot({
-
   })
 }
 
