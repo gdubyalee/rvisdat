@@ -24,7 +24,7 @@ shinyServer(function(input,output){
         ||
         input$forceRedo
       ){
-        cryptData<-readRDS(paste0('cache/',input$searchStr))
+        cryptData<-readRDS(paste0('data/',input$searchStr))
         times<-strtoi(substring(names(cryptData),2))
         neutralDrift<-fitNeutralDrift(cryptData,times)
         params<-getNeutralDirftParams(neutralDrift)
