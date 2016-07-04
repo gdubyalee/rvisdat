@@ -1,12 +1,10 @@
 library(DriftR)
 
 lsfParamsNeutral<-function(dataset){
+  lsCostDataset<-function(Nlambdatau)lsCost(Nlambdatau[1],Nlambdatau[2],Nlambdatau[3],dataset)
   mins<-list()
-  for(N in 3:20){
-    lsCostDataset<-function(lambdatau)lsCost(N,lambdatau[1],lambdatau[2],dataset)
-    #min<-optim(c(8,0.1,1),lsCostDataset)
-    mins[[N]]<-nlm(lsCostDataset,c(0.1,1),iterlim=1000)
-  }
+  for(N in 3:20)mins[[N-2]]<-optim(c(N,0.1,1),lsCostDataset)
+  #mins<-nlm(lsCostDataset,c(8,1,0.1),iterlim=1000)
   mins
 }
 

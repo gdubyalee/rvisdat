@@ -19,8 +19,10 @@ getNeutralDriftParams<-function(neutralDriftData){
 
 handleUpload<-function(uploadedDataset){
   uploadedObj<-read.csv(uploadedDataset$datapath)
-  saveRDS(uploadedObj,paste0('data/',uploadedDataset$name))
-  saveRDS(getNeutralDriftParams(uploadedObj),paste0('cache/mcmc_',uploadedDataset$name))
+  #Assume filename is [NAME].csv for now
+  saveName<-paste0(substr(uploadedDataset$name,1,nchar(uploadedDataset$name)-3),'rds')
+  saveRDS(uploadedObj,paste0('data/',saveName))
+  saveRDS(getNeutralDriftParams(uploadedObj),paste0('cache/mcmc_',saveName))
 }
 
 #Updates the cache to contain our processed data
@@ -41,6 +43,15 @@ serve<-function(input,output){
   output$driftPlots<-renderPlot({
   })
   output$expectation<-renderPlot({
+  })
+  observe({
+    input$newDataset
+    if(length(input$newDataset)){
+      handleUpload(input$newDataset)
+      output$availableDatasets<-renderUI({
+        checkboxGroupInput('datasets','Visualise datasets:',populateAvailableDatasets())
+      })
+    }
   })
 }
 
