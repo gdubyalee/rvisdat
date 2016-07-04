@@ -8,23 +8,19 @@ TAU_MAX<-2
 N_MIN<-2
 N_MAX<-10
 
-serve=function(input,output){
-  output$availableDatasets<-renderUI({
-    checkboxGroupInput('datasets','Visualise datasets:',populateAvailableDatasets())
-  })
-  output$driftPlots<-renderPlot({
-  })
-  output$expectedNumberClonesPlot<-renderPlot({
-  })
-}
-
-populateAvailableDatasets=function(){
+populateAvailableDatasets<-function(){
   return(dir('data'))
 }
 
 #Assume that the names are of the form 'X<day number>'
-getNeutralDriftParams=function(neutralDriftData){
+getNeutralDriftParams<-function(neutralDriftData){
   return(getNeutralDirftParams(fitNeutralDrift(neutralDriftData,strtoi(substring(names(neutralDriftData),2)))))
+}
+
+handleUpload<-function(uploadedDataset){
+  uploadedObj<-read.csv(uploadedDataset$datapath)
+  saveRDS(uploadedObj,paste0('data/',uploadedDataset$name))
+  saveRDS(getNeutralDriftParams(uploadedObj),paste0('cache/mcmc_',uploadedDataset$name))
 }
 
 #Updates the cache to contain our processed data
@@ -38,7 +34,17 @@ getNeutralDriftParams=function(neutralDriftData){
 #  mcmc<-lapply(lapply(paste0('data/',dataFiles),readRDS),fitNeutralDriftWithTimes)
 #}
 
-pcApp=shinyUI(fluidPage(
+serve<-function(input,output){
+  output$availableDatasets<-renderUI({
+    checkboxGroupInput('datasets','Visualise datasets:',populateAvailableDatasets())
+  })
+  output$driftPlots<-renderPlot({
+  })
+  output$expectation<-renderPlot({
+  })
+}
+
+pcApp<-shinyUI(fluidPage(
   #Display available datasets and expected number of clones in first row
   sidebarLayout(
     #List available data in side panel
@@ -54,6 +60,6 @@ pcApp=shinyUI(fluidPage(
     fileInput('newDataset','Upload a new dataset'),
     sliderInput('lambda',HTML('&lambda; (replacement rate)'),LAMBDA_MIN,LAMBDA_MAX,.5*(LAMBDA_MIN+LAMBDA_MAX)),
     sliderInput('tau',HTML('&tau; (initial delay)'),TAU_MIN,TAU_MAX,.5*(TAU_MIN+TAU_MAX),step=.01),
-    sliderInput('N','N (#stem cells in crypt)',N_MIN,N_MAX,.5*(N_MIN+N_MAX))
+    sliderInput('N','N (#active stem cells/crypt)',N_MIN,N_MAX,.5*(N_MIN+N_MAX))
   )
 ))
