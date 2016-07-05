@@ -34,11 +34,14 @@ expectationPlot<-function(selectedDatasets){
   analyticPlot<-lapply(mcmcParams,function(obj)Crypt_drift_c(obj$lambda,obj$lambda,obj$N,timesForAnalyticFit,1))
   analyticPlotExpectation<-lapply(analyticPlot,function(data)t(data)%*%1:nrow(data))
   names(analyticPlotExpectation)<-selectedDatasets
-  #for(dataset in analyticPlotExpectation)dataset<-join(dataset,timesForAnalyticFit)
-  toPlot<-do.call(rbind.data.frame,analyticPlotExpectation)
-  print(toPlot)
+  names(timesForAnalyticFit)<-'times'
+  analyticPlotExpectationTimes<-lapply(analyticPlotExpectation,function(data)join(data,timesForAnalyticFit))
+  #toPlot<-do.call(rbind.data.frame,analyticPlotExpectation)
+  #print(toPlot)
   #ggplot(analyticPlotExpectation,aes(
-  c(0,5,2,8,3,5,4,2,1,2,1,8,9,3)
+  frameToPlot<-Reduce(function(...)merge(...,all=T),analyticPlotExpectationTimes)
+  #!!!!!!!!! :(
+  #ggplot(frameToPlot,aes(x=times,y=selectedDatasets)+geom_line(mapping=aes(
 }
 
 serve<-function(input,output){
