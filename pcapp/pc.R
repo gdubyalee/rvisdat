@@ -7,6 +7,7 @@ TAU_MIN<-0
 TAU_MAX<-2
 N_MIN<-2
 N_MAX<-10
+MOUSE_TIME<-200
 
 populateAvailableDatasets<-function(){
   return(dir('data'))
@@ -18,23 +19,27 @@ getNeutralDriftParams<-function(neutralDriftData){
 }
 
 handleUpload<-function(uploadedDataset){
-  uploadedObj<-read.csv(uploadedDataset$datapath)
-  #Assume filename is [NAME].csv for now
-  saveName<-paste0(substr(uploadedDataset$name,1,nchar(uploadedDataset$name)-3),'rds')
+  uploadedObj<-read.csv(uploadedDataset$datapath,sep=' ')
+  #Assume filename is [NAME].data for now
+  saveName<-paste0(substr(uploadedDataset$name,1,nchar(uploadedDataset$name)-4),'rds')
   saveRDS(uploadedObj,paste0('data/',saveName))
   saveRDS(getNeutralDriftParams(uploadedObj),paste0('cache/mcmc_',saveName))
 }
 
-#Updates the cache to contain our processed data
-#updateAnalysis<-function(updateAll){
-#  dataFiles<-dir('data')
-#  toUpdate<-ifelse(
-#    updateAll,
-#    dataFiles,
-#    dataFiles[!(dataFiles %in% substring(dir('cache'),5))]
-#  )
-#  mcmc<-lapply(lapply(paste0('data/',dataFiles),readRDS),fitNeutralDriftWithTimes)
-#}
+expectationPlot<-function(selectedDatasets){
+  if(is.null(selectedDatasets))return(NULL)
+  mcmcParams<-lapply(paste0('cache/mcmc_',selectedDatasets),readRDS)
+  rawData<-lapply(paste0('data/',selectedDatasets),readRDS)
+  timesForAnalyticFit<-seq(0,MOUSE_TIME,.1)
+  analyticPlot<-lapply(mcmcParams,function(obj)Crypt_drift_c(obj$lambda,obj$lambda,obj$N,timesForAnalyticFit,1))
+  analyticPlotExpectation<-lapply(analyticPlot,function(data)t(data)%*%1:nrow(data))
+  names(analyticPlotExpectation)<-selectedDatasets
+  #for(dataset in analyticPlotExpectation)dataset<-join(dataset,timesForAnalyticFit)
+  toPlot<-do.call(rbind.data.frame,analyticPlotExpectation)
+  print(toPlot)
+  #ggplot(analyticPlotExpectation,aes(
+  c(0,5,2,8,3,5,4,2,1,2,1,8,9,3)
+}
 
 serve<-function(input,output){
   output$availableDatasets<-renderUI({
@@ -43,6 +48,7 @@ serve<-function(input,output){
   output$driftPlots<-renderPlot({
   })
   output$expectation<-renderPlot({
+    plot(expectationPlot(input$datasets))
   })
   observe({
     input$newDataset
