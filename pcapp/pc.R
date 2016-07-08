@@ -1,5 +1,6 @@
-library(dplyr)
+library(shiny)
 library(plyr)
+library(dplyr)
 library(InferCryptDrift)
 library(DriftR)
 #Constants for sliders
@@ -13,6 +14,7 @@ MOUSE_TIME<-200
 TIME_INTERVAL<-1
 #For now, anyway...
 nBins<-8
+analyticPlotTimes<-seq(TIME_INTERVAL,MOUSE_TIME,TIME_INTERVAL)
 
 populateAvailableDatasets<-function(){
   return(dir('data'))
@@ -38,14 +40,25 @@ processDataForPlots<-function(selectedDatasets){
     rawData<-cbind(
       readRDS(paste0('data/',selectedDatasets[1])),
       experiment=selectedDatasets[1],
-      proportion<-1:nBins
+      proportion=1:nBins
     )
 
+    d<-readRDS(paste0('cache/mcmc_',selectedDatasets[1]))
+    d<-data.frame(Crypt_drift_c(
+      d$lambda,
+      d$lambda,
+      d$N,
+      analyticPlotTimes,
+      1,
+      nBins
+    ))
+    names(d)<-analyticPlotTimes
     analyticData<-cbind(
-      Crypt_drift_c(
-        )
-      time<-timesFor
-      )
+      d,
+      experiment=selectedDatasets[1],
+      proportion=1:nBins
+      #time=analyticPlotTimes
+    )
   }
   if(length(selectedDatasets)>1){
     for(i in 2:length(selectedDatasets)){
@@ -57,80 +70,39 @@ processDataForPlots<-function(selectedDatasets){
           proportion=1:nBins
         )
       )
+      d<-readRDS(paste0('cache/mcmc_',selectedDatasets[i]))
+      d<-data.frame(Crypt_drift_c(
+        d$lambda,
+        d$lambda,
+        d$N,
+        analyticPlotTimes,
+        1,
+        nBins
+      ))
+      names(d)<-analyticPlotTimes
+      d<-cbind(
+        d,
+        experiment=selectedDatasets[i],
+        proportion=1:nBins
+        #time<-analyticPlotTimes
+      )
+      analyticData<-rbind(
+        analyticData,
+        d
+      )
     }
   }
-  if(length(selectedDatasets)){
-    print(rawData)
-    #print(analyticData)
-  }
-}
 
-#processDataForPlots<-function(selectedDatasets){
-#  if(is.null(selectedDatasets))return(NULL)
-#  #Tend to get a nicer number of elements like this
-#  timesForAnalyticFit<-seq(0,MOUSE_TIME-TIME_INTERVAL,TIME_INTERVAL)
-#  #nBins<-16
-#  mcmcParams<-list()
-#  rawData<-list()
-#  for(i in 1:length(selectedDatasets)){
-#    mcmcParams[[i]]<-readRDS(paste0('cache/mcmc_',selectedDatasets[i]))
-#    rawData[[i]]<-readRDS(paste0('data/',selectedDatasets[i]))
-#    #nBins<-min(nBins,ncol(rawData[[i]]))
-#  }
-#
-#  analyticList<-lapply(
-#    mcmcParams,
-#    function(obj)Crypt_drift_c(obj$lambda,obj$lambda,obj$N,timesForAnalyticFit,1,nBins)
-#  )
-#  #Add in a row for times
-#  analyticList<-lapply(1:length(selectedDatasets),function(i){
-#    rownames(analyticList[[i]])<-as.character(1:nBins)
-#    ret<-rbind.data.frame(
-#      times=timesForAnalyticFit,
-#      analyticList[[i]]
-#    )
-#    ret<-rbind.data.frame(ret,experiment=selectedDatasets[i])
-#    print(ret)
-#    #names(ret)<-c('times',as.character(1:nBins))
-#    ret
-#  })
-#
-#  #names(analyticList)<-selectedDatasets
-#  print(analyticList)
-#  #frameToPlotAnalytic<-ldply(analyticList)
-#  #frameToPlotAnalytic<-do.call('rbind',analyticList)
-#  #print(frameToPlotAnalytic)
-#  frameToPlotAnalytic<-analyticList[[1]]
-#  if(length(selectedDatasets)>1){
-#    for(i in 2:length(selectedDatasets)){
-#      frameToPlotAnalytic<-cbind.data.frame(frameToPlotAnalytic,analyticList[[i]])
-#    }
-#  }
-#  #print(frameToPlotAnalytic)
-#  frameToPlotRaw<-NULL
-#  
-#  ##Now squish so all have the right number of bins and put in a list
-#  #frameToPlotRaw<-NULL
-#  #for(i in 1:length(selectedDatasets)){
-#  #  dat<-NULL
-#  #  #Don't care about this yet
-#  #  if(FALSE&&ncol(rawData[[i]])!=nBins){
-#  #    tryCatch(someVariableWhichDoesNotExist,error=function(e)print('Haven\'t implemented comparison of multiple bin sized data yet!'))
-#  #    #squish<-ncol(rawData[i])/nBins
-#  #    #for(j in 1:nBins){
-#  #    #  #Need to check indices are arranged the right way here
-#  #    #  dat[j]<-colSums(rawData[j:(j+squish-1),])
-#  #    #}
-#  #  }else{
-#  #    dat<-rawData[[i]]
-#  #  }
-#  #  dat[['experiment']]<-selectedDatasets[i]
-#  #  dat[['times']]<-strtoi(substring(names(rawData[i]),2))
-#  #  frameToPlotRaw<-rbind(frameToPlotRaw,dat)
-#  #}
-#
-#  c(frameToPlotRaw,frameToPlotAnalytic)
-#}
+  if(length(selectedDatasets)){
+    #Now make the frames into collections of time points rather than having huge numbers of colu,mns in general
+    rawData<-gather(rawData,'time','n',1:(ncol(rawData)-2))
+    analyticData<-gather(analyticData,'time','p',1:(ncol(analyticData)-2))
+    #coerce time points in raw data into numers
+    rawData[['time']]<-strtoi(substring(rawData[['time']],2))
+    return(list(rawData,analyticData))
+  }
+  list(NULL,NULL)
+}
 
 serve<-function(input,output){
 
