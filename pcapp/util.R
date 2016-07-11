@@ -15,12 +15,12 @@ handleUpload<-function(uploadedDataset){
   saveRDS(getNeutralDriftParams(uploadedObj),paste0('cache/mcmc_',saveName))
 }
 
-processDataForPlots<-function(selectedDatasets,mouseLife){
+processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau){
   analyticPlotTimes<-seq(TIME_INTERVAL,mouseLife,TIME_INTERVAL)
   #This feels rather hacky...
   if(length(selectedDatasets)){
     rawIn<-readRDS(paste0('data/',selectedDatasets[1]))
-    rawIn<-rawIn/rowSums(rawIn)
+    rawIn<-rawIn/colSums(rawIn)
     rawData<-cbind(
       rawIn,
       experiment=selectedDatasets[1],
@@ -48,7 +48,7 @@ processDataForPlots<-function(selectedDatasets,mouseLife){
     for(i in 2:length(selectedDatasets)){
       #Need rbind.fill - should perhaps actually gather data earlier...
       rawIn<-readRDS(paste0('data/',selectedDatasets[i]))
-      rawIn<-rawIn/rowSums(rawIn)
+      rawIn<-rawIn/colSums(rawIn)
       rawData<-rbind.fill(
         rawData,
         cbind(
@@ -63,7 +63,8 @@ processDataForPlots<-function(selectedDatasets,mouseLife){
         analyticIn$lambda,
         analyticIn$lambda,
         analyticIn$N,
-        analyticPlotTimes,
+        #Probabilities fixed 
+        pmax(analyticPlotTimes-analyticIn$tau,0),
         1,
         nBins
       ))

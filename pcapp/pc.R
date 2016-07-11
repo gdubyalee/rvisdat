@@ -17,6 +17,7 @@ MOUSE_TIME_MIN<-20
 MOUSE_TIME_MAX<-200
 #For now, anyway...
 nBins<-8
+renderedData<-NULL
 
 serve<-function(input,output){
   output$availableDatasets<-renderUI({
@@ -25,17 +26,25 @@ serve<-function(input,output){
   #Data needs to be shared between bits of the form in a sensible way.  Idealy stuff shouldn't get called multiple times...
   #Should try and work out how to do this properly later.
   output$driftPlots<-renderPlot({
-  })
-  output$expectation<-renderPlot({
-    renderedData<-processDataForPlots(input$datasets,input$T)
+    renderedData<-processDataForPlots(input$datasets,input$T,input$N,input$lambda,input$tau)
     ggplot()+
-      geom_point(data=renderedData[[1]],mapping=aes(x=time,y=n,col=proportion))+
-      geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=proportion,col=proportion))+
-      facet_grid(~experiment)
+      geom_point(data=renderedData[[1]],mapping=aes(x=time,y=n,col=experiment))+
+      geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=experiment,col=experiment))+
+      facet_grid(~proportion)
     #ggplot()+
     #  geom_point(data=renderedData[[1]],mapping=aes(x=time,y=n,col=experiment,size=proportion))+
     #  geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,col=experiment,group=interaction(proportion,experiment)))
     #  #geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,col=experiment))
+  })
+  output$expectation<-renderPlot({
+
+    renderedData<-processDataForPlots(input$datasets,input$T)
+    renderedData[[1]]<-ddply(renderedData[[1]],.(experiment,time),summarize,expectation=sum(proportion*n)/nBins)
+    renderedData[[2]]<-ddply(renderedData[[2]],.(experiment,time),summarize,expectation=sum(proportion*p)/nBins)
+    ggplot()+
+      geom_point(data=renderedData[[1]],mapping=aes(x=time,y=expectation,col=experiment))+
+      geom_line(data=renderedData[[2]],mapping=aes(x=time,y=expectation,col=experiment))
+
   })
   observe({
     input$newDataset
