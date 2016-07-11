@@ -27,16 +27,20 @@ serve<-function(input,output){
   #Should try and work out how to do this properly later.
   output$driftPlots<-renderPlot({
     saveRDS(list(lambda=input$lambda,tau=input$tau,N=input$N),'cache/mcmc_user.rds')
-    renderedData<-processDataForPlots(input$datasets,input$T,input$N,input$lambda,input$tau)
-    if(!is.null(renderedData[[1]])){
-      ggplot()+
-        geom_point(data=renderedData[[1]],mapping=aes(x=time,y=n,col=experiment))+
-        geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=experiment,col=experiment))+
-        facet_grid(~proportion)
-    }else{
-      ggplot()+
-        geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=experiment,col=experiment))+
-        facet_grid(~proportion)
+    if(length(input$datasets)){
+      renderedData<-processDataForPlots(input$datasets,input$T,input$N,input$lambda,input$tau)
+      if(!is.null(renderedData[[1]])){
+        ggplot()+
+          geom_point(data=renderedData[[1]],mapping=aes(x=time,y=n,col=experiment))+
+          geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=experiment,col=experiment))+
+          facet_grid(~proportion)+
+          ggtitle('Clonal drift profiles')
+      }else{
+        ggplot()+
+          geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=experiment,col=experiment))+
+          facet_grid(~proportion)+
+          ggtitle('Clonal drift profiles')
+      }
     }
     #ggplot()+
     #  geom_point(data=renderedData[[1]],mapping=aes(x=time,y=n,col=experiment,size=proportion))+
@@ -46,18 +50,21 @@ serve<-function(input,output){
   output$expectation<-renderPlot({
 
     saveRDS(list(lambda=input$lambda,tau=input$tau,N=input$N),'cache/mcmc_user.rds')
-    renderedData<-processDataForPlots(input$datasets,input$T)
-    renderedData[[2]]<-ddply(renderedData[[2]],.(experiment,time),summarize,expectation=sum(proportion*p)/nBins)
-    if(!is.null(renderedData[[1]])){
-      renderedData[[1]]<-ddply(renderedData[[1]],.(experiment,time),summarize,expectation=sum(proportion*n)/nBins)
-      ggplot()+
-        geom_point(data=renderedData[[1]],mapping=aes(x=time,y=expectation,col=experiment))+
-        geom_line(data=renderedData[[2]],mapping=aes(x=time,y=expectation,col=experiment))
-    }else{
-      ggplot()+
-        geom_line(data=renderedData[[2]],mapping=aes(x=time,y=expectation,col=experiment))
+    if(length(input$datasets)){
+      renderedData<-processDataForPlots(input$datasets,input$T)
+      renderedData[[2]]<-ddply(renderedData[[2]],.(experiment,time),summarize,expectation=sum(proportion*p)/nBins)
+      if(!is.null(renderedData[[1]])){
+        renderedData[[1]]<-ddply(renderedData[[1]],.(experiment,time),summarize,expectation=sum(proportion*n)/nBins)
+        ggplot()+
+          geom_point(data=renderedData[[1]],mapping=aes(x=time,y=expectation,col=experiment))+
+          geom_line(data=renderedData[[2]],mapping=aes(x=time,y=expectation,col=experiment))+
+          ggtitle('Expected proportion of crypt occupied by clones where clones found')
+      }else{
+        ggplot()+
+          geom_line(data=renderedData[[2]],mapping=aes(x=time,y=expectation,col=experiment))+
+          ggtitle('Expected proportion of crypt occupied by clones where clones found')
+      }
     }
-
   })
   observe({
     input$newDataset
