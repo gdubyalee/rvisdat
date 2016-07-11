@@ -13,11 +13,10 @@ TAU_MAX<-2
 N_MIN<-2
 N_MAX<-10
 #Paramaters for analytic solution plots
-MOUSE_TIME<-200
-TIME_INTERVAL<-1
+MOUSE_TIME_MIN<-20
+MOUSE_TIME_MAX<-200
 #For now, anyway...
 nBins<-8
-analyticPlotTimes<-seq(TIME_INTERVAL,MOUSE_TIME,TIME_INTERVAL)
 
 serve<-function(input,output){
   output$availableDatasets<-renderUI({
@@ -28,11 +27,15 @@ serve<-function(input,output){
   output$driftPlots<-renderPlot({
   })
   output$expectation<-renderPlot({
-    renderedData<-processDataForPlots(input$datasets)
-    print(renderedData[[1]])
+    renderedData<-processDataForPlots(input$datasets,input$T)
     ggplot()+
-      geom_point(data=renderedData[[1]],mapping=aes(x=time,y=n,col=experiment,size=proportion))#+
-      #geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,col=experiment))
+      geom_point(data=renderedData[[1]],mapping=aes(x=time,y=n,col=proportion))+
+      geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=proportion,col=proportion))+
+      facet_grid(~experiment)
+    #ggplot()+
+    #  geom_point(data=renderedData[[1]],mapping=aes(x=time,y=n,col=experiment,size=proportion))+
+    #  geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,col=experiment,group=interaction(proportion,experiment)))
+    #  #geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,col=experiment))
   })
   observe({
     input$newDataset
@@ -61,6 +64,7 @@ pcApp<-shinyUI(fluidPage(
     fileInput('newDataset','Upload a new dataset'),
     sliderInput('lambda',HTML('&lambda; (replacement rate)'),LAMBDA_MIN,LAMBDA_MAX,.5*(LAMBDA_MIN+LAMBDA_MAX)),
     sliderInput('tau',HTML('&tau; (initial delay)'),TAU_MIN,TAU_MAX,.5*(TAU_MIN+TAU_MAX),step=.01),
-    sliderInput('N','N (#active stem cells/crypt)',N_MIN,N_MAX,.5*(N_MIN+N_MAX))
+    sliderInput('N','N (#active stem cells/crypt)',N_MIN,N_MAX,.5*(N_MIN+N_MAX)),
+    sliderInput('T','Maximum time in plot',MOUSE_TIME_MIN,MOUSE_TIME_MAX,.5*(MOUSE_TIME_MIN+MOUSE_TIME_MAX))
   )
 ))

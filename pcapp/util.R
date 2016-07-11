@@ -1,3 +1,6 @@
+TIME_INTERVAL<-1
+
+
 #Assume that the names are of the form 'X<day number>'
 getNeutralDriftParams<-function(neutralDriftData){
   if(is.null(neutralDriftData)){print('Got a null...');return(NULL)}
@@ -12,63 +15,68 @@ handleUpload<-function(uploadedDataset){
   saveRDS(getNeutralDriftParams(uploadedObj),paste0('cache/mcmc_',saveName))
 }
 
-processDataForPlots<-function(selectedDatasets){
+processDataForPlots<-function(selectedDatasets,mouseLife){
+  analyticPlotTimes<-seq(TIME_INTERVAL,mouseLife,TIME_INTERVAL)
   #This feels rather hacky...
   if(length(selectedDatasets)){
+    rawIn<-readRDS(paste0('data/',selectedDatasets[1]))
+    rawIn<-rawIn/rowSums(rawIn)
     rawData<-cbind(
-      readRDS(paste0('data/',selectedDatasets[1])),
+      rawIn,
       experiment=selectedDatasets[1],
       proportion=1:nBins
     )
 
-    d<-readRDS(paste0('cache/mcmc_',selectedDatasets[1]))
-    d<-data.frame(Crypt_drift_c(
-      d$lambda,
-      d$lambda,
-      d$N,
+    analyticIn<-readRDS(paste0('cache/mcmc_',selectedDatasets[1]))
+    analyticIn<-data.frame(Crypt_drift_c(
+      analyticIn$lambda,
+      analyticIn$lambda,
+      analyticIn$N,
       analyticPlotTimes,
       1,
       nBins
     ))
-    names(d)<-analyticPlotTimes
+    names(analyticIn)<-analyticPlotTimes
     analyticData<-cbind(
-      d,
+      analyticIn,
       experiment=selectedDatasets[1],
       proportion=1:nBins
-      #time=analyticPlotTimes
+      #time<-analyticPlotTimes
     )
   }
   if(length(selectedDatasets)>1){
     for(i in 2:length(selectedDatasets)){
       #Need rbind.fill - should perhaps actually gather data earlier...
+      rawIn<-readRDS(paste0('data/',selectedDatasets[i]))
+      rawIn<-rawIn/rowSums(rawIn)
       rawData<-rbind.fill(
         rawData,
         cbind(
-          readRDS(paste0('data/',selectedDatasets[i])),
+          rawIn,
           experiment=selectedDatasets[i],
           proportion=1:nBins
         )
       )
       #Analytic stuff
-      d<-readRDS(paste0('cache/mcmc_',selectedDatasets[i]))
-      d<-data.frame(Crypt_drift_c(
-        d$lambda,
-        d$lambda,
-        d$N,
+      analyticIn<-readRDS(paste0('cache/mcmc_',selectedDatasets[i]))
+      analyticIn<-data.frame(Crypt_drift_c(
+        analyticIn$lambda,
+        analyticIn$lambda,
+        analyticIn$N,
         analyticPlotTimes,
         1,
         nBins
       ))
-      names(d)<-analyticPlotTimes
-      d<-cbind(
-        d,
+      names(analyticIn)<-analyticPlotTimes
+      analyticIn<-cbind(
+        analyticIn,
         experiment=selectedDatasets[i],
         proportion=1:nBins
         #time<-analyticPlotTimes
       )
       analyticData<-rbind(
         analyticData,
-        d
+        analyticIn
       )
     }
   }
@@ -79,6 +87,7 @@ processDataForPlots<-function(selectedDatasets){
     analyticData<-gather(analyticData,'time','p',1:(ncol(analyticData)-2))
     #coerce time points in raw data into numers
     rawData[['time']]<-strtoi(substring(rawData[['time']],2))
+    analyticData[['time']]<-as.numeric(analyticData[['time']])
     return(list(rawData,analyticData))
   }
   list(NULL,NULL)
