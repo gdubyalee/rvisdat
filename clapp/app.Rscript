@@ -2,5 +2,5 @@
 library(shiny)
 source('cl.R')
 runApp(
-  appDir=list('ui'=pcApp,'server'=serve)
+  appDir=list('ui'=clApp,'server'=serve)
 )

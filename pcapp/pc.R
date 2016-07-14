@@ -71,7 +71,7 @@ serve<-function(input,output){
     if(length(input$newDataset)){
       handleUpload(input$newDataset)
       output$availableDatasets<-renderUI({
-        checkboxGroupInput('datasets','Visualise datasets:',dir('data'))
+        checkboxGroupInput('datasets','Available datasets',dir('data'))
       })
     }
   })
@@ -79,10 +79,14 @@ serve<-function(input,output){
 }
 
 pcApp<-shinyUI(fluidPage(
+  titlePanel('Clonal pulse-chase visualisation'),
   #Display available datasets and expected number of clones in first row
   sidebarLayout(
     #List available data in side panel
-    sidebarPanel(uiOutput('availableDatasets')),
+    sidebarPanel(
+      HTML('<h4>Add new datasets using the file upload input below.  the \'user\' line can be adjusted, when selected, using the sliders below.  All curves shown are of the same analytic solution of the uynderlying dynamical equations, but with different choices of parameters (N,&lambda;,&tau;) to fit observed datasets.</h4>'),
+      uiOutput('availableDatasets')
+    ),
     mainPanel(
       plotOutput('expectation')
     )
