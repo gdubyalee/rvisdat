@@ -11,7 +11,7 @@ handleUpload<-function(uploadedDataset){
   uploadedObj<-read.csv(uploadedDataset$datapath,sep=' ')
   #Assume filename is [NAME].data for now
   saveName<-paste0(substr(uploadedDataset$name,1,nchar(uploadedDataset$name)-4),'rds')
-  if(saveName=='user.rds')return('Please choose another name!')
+  if(saveName=='user_defined')return('Please choose another name!')
   saveRDS(uploadedObj,paste0('data/',saveName))
   saveRDS(getNeutralDriftParams(uploadedObj),paste0('cache/mcmc_',saveName))
 }
@@ -21,7 +21,7 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau){
   #This feels rather hacky...
   if(length(selectedDatasets)){
     rawIn<-readRDS(paste0('data/',selectedDatasets[1]))
-    if(selectedDatasets[1]!='user.rds'){
+    if(selectedDatasets[1]!='user_defined'){
       rawIn<-rawIn/colSums(rawIn)
       rawData<-cbind(
         rawIn,
@@ -51,7 +51,7 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau){
     for(i in 2:length(selectedDatasets)){
       #Need rbind.fill - should perhaps actually gather data earlier...
       rawIn<-readRDS(paste0('data/',selectedDatasets[i]))
-      if(selectedDatasets[i]!='user.rds'){
+      if(selectedDatasets[i]!='user_defined'){
         rawIn<-rawIn/colSums(rawIn)
         rawData<-rbind.fill(
           rawData,

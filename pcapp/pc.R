@@ -26,7 +26,7 @@ serve<-function(input,output){
   #Data needs to be shared between bits of the form in a sensible way.  Idealy stuff shouldn't get called multiple times...
   #Should try and work out how to do this properly later.
   output$driftPlots<-renderPlot({
-    saveRDS(list(lambda=input$lambda,tau=input$tau,N=input$N),'cache/mcmc_user.rds')
+    saveRDS(list(lambda=input$lambda,tau=input$tau,N=input$N),'cache/mcmc_user_defined')
     if(length(input$datasets)){
       renderedData<-processDataForPlots(input$datasets,input$T,input$N,input$lambda,input$tau)
       if(!is.null(renderedData[[1]])){
@@ -49,7 +49,7 @@ serve<-function(input,output){
   })
   output$expectation<-renderPlot({
 
-    saveRDS(list(lambda=input$lambda,tau=input$tau,N=input$N),'cache/mcmc_user.rds')
+    saveRDS(list(lambda=input$lambda,tau=input$tau,N=input$N),'cache/mcmc_user_defined')
     if(length(input$datasets)){
       renderedData<-processDataForPlots(input$datasets,input$T)
       renderedData[[2]]<-ddply(renderedData[[2]],.(experiment,time),summarize,expectation=sum(proportion*p)/nBins)
@@ -84,8 +84,11 @@ pcApp<-shinyUI(fluidPage(
   sidebarLayout(
     #List available data in side panel
     sidebarPanel(
-      HTML('<h4>Add new datasets using the file upload input below.  the \'user\' line can be adjusted, when selected, using the sliders below.  All curves shown are of the same analytic solution of the uynderlying dynamical equations, but with different choices of parameters (N,&lambda;,&tau;) to fit observed datasets.</h4>'),
-      uiOutput('availableDatasets')
+      HTML('<h4>Add new datasets using the file upload input below.
+        the \'user\' line can be adjusted, when selected, using the sliders below.
+        All curves shown are of the same analytic solution of the uynderlying dynamical equations, but with different choices of parameters (N,&lambda;,&tau;) to fit observed datasets.
+        Note then all plots make assumptions of neutral drift for now.
+        An interface for comparing neutral vs biased profiles is possible though, as a next step.</h4>'), uiOutput('availableDatasets')
     ),
     mainPanel(
       plotOutput('expectation')
