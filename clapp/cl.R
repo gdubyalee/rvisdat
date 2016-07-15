@@ -15,7 +15,7 @@ handleUpload<-function(uploadedDataset){
 
 serve<-function(input,output){
   output$availableDatasets<-renderUI({
-    radioButtons('dataset','Visualise datasets:',dir('data'))
+    radioButtons('dataset','Visualise datasets:',c('randomly generated simulation',dir('data')))
   })
   output$clPlots<-renderPlot({
     if(length(input$dataset)){
@@ -46,6 +46,6 @@ clApp<-shinyUI(fluidPage(
   ),
   flowLayout(
     fileInput('newDataset','Upload a new dataset'),
-    radioButtons('smoothMethod','Fit method:',list('loess','lm','glm','gam','rlm'))
+    radioButtons('smoothMethod','Fit method:',list('loess','lm','glm','gam','none'))
   )
 ))
