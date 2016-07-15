@@ -87,8 +87,7 @@ pcApp<-shinyUI(fluidPage(
       HTML('<h4>Add new datasets using the file upload input below.
         the \'user\' line can be adjusted, when selected, using the sliders below.
         All curves shown are of the same analytic solution of the uynderlying dynamical equations, but with different choices of parameters (N,&lambda;,&tau;) to fit observed datasets.
-        Note then all plots make assumptions of neutral drift for now.
-        An interface for comparing neutral vs biased profiles is possible though, as a next step.</h4>'), uiOutput('availableDatasets')
+        Note then all plots make assumptions of neutral drift for now.</h4>'), uiOutput('availableDatasets')
     ),
     mainPanel(
       plotOutput('expectation')
