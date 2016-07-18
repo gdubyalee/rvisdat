@@ -12,9 +12,10 @@ PR_MAX<-1
 NS_MIN<-2
 NS_MAX<-20
 MAXTIME_MIN<-30
-MAXTIME_MAX<-200
+MAXTIME_MAX<-1000
+MAXTIME_DISPLAYTIME<-1000
 NUMRUNS_MIN<-200
-NUMRUNS_MAX<-20000
+NUMRUNS_MAX<-200000
 NUM_TIME_POINTS<-1000
 
 handleUpload<-function(uploadedDataset){
@@ -33,22 +34,40 @@ serve<-function(input,output){
   output$clPlots<-renderPlot({
     if(length(input$dataset)){
       #Set data to be visualised
-      d<-if(input$dataset=='randomly generated simulation'){
-        as.data.frame(sim_contLabelling(
+      d<-as.data.frame(readRDS(paste0('data/',input$dataset)))
+      simLine<-NULL
+      if(input$showSim){
+        timePts<-seq(0,MAXTIME_DISPLAYTIME,length.out=NUM_TIME_POINTS)
+        sim<-sim_contLabelling(
           input$mu,
           input$lambda,
-          input$Ns,
-          seq(0,input$maxTime,length.out=NUM_TIME_POINTS),
-          input$numRuns,
-          input$Pr
-        ))
-      }else{
-        as.data.frame(readRDS(paste0('data/',input$dataset)))
+          input$N,
+          timePts,
+          input$numSim,
+          .5,
+          T
+        )
+        simFrame<-data.frame(t(sim))
+        simFrame[['time']]<-timePts
+        simFrame[['partial']]<-rowSums(simFrame[,2:input$N])
+        simFrame[['whole']]<-simFrame[[input$N+1]]
+        print(head(simFrame))
+        dSim<-rbind.data.frame(
+          data.frame(time=simFrame[['time']],value=simFrame[['partial']],type='partial'),
+          data.frame(time=simFrame[['time']],value=simFrame[['whole']],type='whole')
+        )
+        print(head(dSim))
+        simLine<-geom_line(data=dSim,aes(x=time,y=value,color=type))
       }
-       ggplot()+
-         geom_point(data=d,aes(x=Age,y=Clone.number,color=Location))+
-         geom_smooth(data=d,method=input$smoothMethod,aes(x=Age,y=Clone.number,color=Location))+
-         facet_wrap(~Type.Clones)         
+      p1<-ggplot()+
+        geom_point(data=d,aes(x=Age,y=Clone.number,color=Type.Clones))+
+        geom_smooth(data=d,method=input$smoothMethod,aes(x=Age,y=Clone.number,color=Type.Clones))+
+        geom_vline(xintercept=input$displayTime)+
+        facet_wrap(~Location)+
+        simLine
+      #p2<-NULL
+      #grid.arrange(p1,p2,nRow=2)
+      p1
     }
   })
   observe({
@@ -63,6 +82,7 @@ serve<-function(input,output){
 }
 
 clApp<-shinyUI(fluidPage(
+  titlePanel('Continuous Clonal Labelling Visualisation'),
   sidebarLayout(
     sidebarPanel(uiOutput('availableDatasets')),
     mainPanel(
@@ -72,14 +92,20 @@ clApp<-shinyUI(fluidPage(
   flowLayout(
     fileInput('newDataset','Upload a new dataset'),
     radioButtons('smoothMethod','Fit method:',list('lm','glm','gam','loess','none'))
-  )#,
-  #flowLayout(
+  ),
+  flowLayout(
+    sliderInput('displayTime','Distribution display time',0,MAXTIME_DISPLAYTIME,.5*MAXTIME_DISPLAYTIME),
+    sliderInput('mu',HTML('&mu;'),0,.2,.01,step=.001),
+    sliderInput('lambda',HTML('&lambda;'),0,.2,.01,step=.001),
+    sliderInput('N','N',3,20,10),
+    sliderInput('numSim','Number of simulations to run',NUMRUNS_MIN,NUMRUNS_MAX,1000),
+    checkboxInput('showSim','Show simulated curve')
   #  checkboxInput('showAnalyticProfile','Display analytic solutions'),
   #  sliderInput('alpha',HTML('&alpha;'),min=0,max=1,step=.0000001),
   #  sliderInput('lambda',HTML('&lambda;'),min=0,max=1,step=.01),
   #  sliderInput('Ns',HTML('N_s'),min=3,max=20),
   #  sliderInput('maxTime','Maximum time to plot analytic solution to',min=200,max=1000)
-  #)#,
+  )#,
   #flowLayout(
   #  h2('Simulate data'),
   #  sliderInput('mu',HTML('&mu;'),MU_MIN,MU_MAX,.5*(MU_MIN+MU_MAX),step=.01),
