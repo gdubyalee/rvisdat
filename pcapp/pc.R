@@ -21,7 +21,7 @@ renderedData<-NULL
 
 serve<-function(input,output){
   output$availableDatasets<-renderUI({
-    checkboxGroupInput('datasets','Visualise datasets:',dir('data'))
+    checkboxGroupInput('datasets','Visualise datasets:',availableDatasetList())
   })
   #Data needs to be shared between bits of the form in a sensible way.  Idealy stuff shouldn't get called multiple times...
   #Should try and work out how to do this properly later.
@@ -71,7 +71,7 @@ serve<-function(input,output){
     if(length(input$newDataset)){
       handleUpload(input$newDataset)
       output$availableDatasets<-renderUI({
-        checkboxGroupInput('datasets','Available datasets',dir('data'))
+        checkboxGroupInput('datasets','Available datasets',availableDatasetList())
       })
     }
   })

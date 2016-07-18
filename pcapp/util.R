@@ -1,6 +1,27 @@
 TIME_INTERVAL<-1
 
 
+availableDatasetList<-function(){
+  ret<-dir('data')
+  ret<-ret[ret!='user_defined']
+  l<-list()
+  for(i in 1:length(ret)){
+    r<-readRDS(paste0('cache/mcmc_',ret[i]))
+    l[i]<-paste0(
+      substr(ret[i],1,nchar(ret[i])-4),
+      ' (N=',
+      r$N,
+      ', lambda=',
+      format(r$lambda,digits=3),
+      ', tau=',
+      format(r$tau,digits=3),
+      ')'
+    )
+  }
+  names(ret)=l
+  c(ret,'user_defined')
+}
+
 #Assume that the names are of the form 'X<day number>'
 getNeutralDriftParams<-function(neutralDriftData){
   if(is.null(neutralDriftData)){print('Got a null...');return(NULL)}
@@ -22,7 +43,7 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau){
   if(length(selectedDatasets)){
     rawIn<-readRDS(paste0('data/',selectedDatasets[1]))
     if(selectedDatasets[1]!='user_defined'){
-      rawIn<-rawIn/colSums(rawIn)
+      rawIn<-rawIn/rep(colSums(rawIn),each=nrow(rawIn))
       rawData<-cbind(
         rawIn,
         experiment=selectedDatasets[1],
@@ -52,7 +73,8 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau){
       #Need rbind.fill - should perhaps actually gather data earlier...
       rawIn<-readRDS(paste0('data/',selectedDatasets[i]))
       if(selectedDatasets[i]!='user_defined'){
-        rawIn<-rawIn/colSums(rawIn)
+        rawIn<-rawIn/rep(colSums(rawIn),each=nrow(rawIn))
+        print(colSums(rawIn))
         rawData<-rbind.fill(
           rawData,
           cbind(
