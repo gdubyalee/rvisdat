@@ -18,6 +18,52 @@ NUMRUNS_MIN<-10000
 NUMRUNS_MAX<-1000000
 NUM_TIME_POINTS<-1000
 
+generatePlots<-function(input){
+  if(length(input$dataset)){
+    #Set data to be visualised
+    d<-as.data.frame(readRDS(paste0('data/',input$dataset)))
+    simLine<-NULL
+    p2<-NULL
+    if(input$showSim){
+      timePts<-seq(0,MAXTIME_DISPLAYTIME,length.out=NUM_TIME_POINTS)
+      sim<-sim_contLabelling(
+        input$mu,
+        input$lambda,
+        input$N,
+        timePts,
+        input$numSim,
+        input$P,
+        T
+      )
+      simFrame<-data.frame(t(sim))
+      simFrame[['time']]<-timePts
+      simFrame[['partial']]<-rowSums(simFrame[,2:input$N])
+      simFrame[['whole']]<-simFrame[[input$N+1]]
+      dSim<-rbind.data.frame(
+        data.frame(time=simFrame[['time']],value=simFrame[['partial']],type='partial'),
+        data.frame(time=simFrame[['time']],value=simFrame[['whole']],type='whole')
+      )
+      simLine<-geom_line(data=dSim,aes(x=time,y=value,color=type))
+      
+      #Plot of distribution of clone sizes at time line's marked at
+      distPlot<-as.numeric(as.vector(simFrame[which.min(abs(timePts-input$displayTime)),2:input$N]))
+      p2<-ggplot()+
+        geom_line(data=data.frame(cells=distPlot,n=1:(input$N-1)),aes(x=n,y=cells))+
+        labs(x='Number of clones in crypt',y='count',title='distribution of partially mutant populated crypt population')
+    }
+    p1<-ggplot()+
+      geom_point(data=d,aes(x=Age,y=Clone.number,color=Type.Clones))+
+      geom_smooth(data=d,method=input$smoothMethod,aes(x=Age,y=Clone.number,color=Type.Clones))+
+      geom_vline(xintercept=input$displayTime)+
+      facet_wrap(~Location)+
+      simLine
+    #p2<-NULL
+    #grid.arrange(p1,p2,nRow=2)
+    if(input$showSim)p1<-grid.arrange(p1,p2)
+    p1
+  }
+}
+
 handleUpload<-function(uploadedDataset){
   uploadedObj<-read.csv(uploadedDataset$datapath)#,sep=' ')
   #Assume filename is [NAME].rds for now
@@ -32,44 +78,18 @@ serve<-function(input,output){
     radioButtons('dataset','Visualise datasets:',dir('data'))#c('randomly generated simulation',dir('data')))
   })
   output$clPlots<-renderPlot({
-    if(length(input$dataset)){
-      #Set data to be visualised
-      d<-as.data.frame(readRDS(paste0('data/',input$dataset)))
-      simLine<-NULL
-      if(input$showSim){
-        timePts<-seq(0,MAXTIME_DISPLAYTIME,length.out=NUM_TIME_POINTS)
-        sim<-sim_contLabelling(
-          input$mu,
-          input$lambda,
-          input$N,
-          timePts,
-          input$numSim,
-          .5,
-          T
-        )
-        simFrame<-data.frame(t(sim))
-        simFrame[['time']]<-timePts
-        simFrame[['partial']]<-rowSums(simFrame[,2:input$N])
-        simFrame[['whole']]<-simFrame[[input$N+1]]
-        print(head(simFrame))
-        dSim<-rbind.data.frame(
-          data.frame(time=simFrame[['time']],value=simFrame[['partial']],type='partial'),
-          data.frame(time=simFrame[['time']],value=simFrame[['whole']],type='whole')
-        )
-        print(head(dSim))
-        simLine<-geom_line(data=dSim,aes(x=time,y=value,color=type))
-      }
-      p1<-ggplot()+
-        geom_point(data=d,aes(x=Age,y=Clone.number,color=Type.Clones))+
-        geom_smooth(data=d,method=input$smoothMethod,aes(x=Age,y=Clone.number,color=Type.Clones))+
-        geom_vline(xintercept=input$displayTime)+
-        facet_wrap(~Location)+
-        simLine
-      #p2<-NULL
-      #grid.arrange(p1,p2,nRow=2)
-      p1
-    }
+    generatePlots(input)
   })
+  output$genPdf<-downloadHandler(
+    filename='clplots.pdf',
+    content=function(file){
+      ggsave(
+        file,
+        plot=generatePlots(input),
+        device='pdf'
+      )
+    }
+  )
   observe({
     input$newDataset
     if(length(input$newDataset)){
@@ -98,8 +118,10 @@ clApp<-shinyUI(fluidPage(
     sliderInput('mu',HTML('&mu;'),0,.0001,.00005,step=.000001),
     sliderInput('lambda',HTML('&lambda;'),0,.5,.01,step=.001),
     sliderInput('N','N',3,20,10),
+    sliderInput('P','Bias',0,1,.5,step=.01),
     sliderInput('numSim','Number of simulations to run',NUMRUNS_MIN,NUMRUNS_MAX,.5*(NUMRUNS_MIN+NUMRUNS_MAX)),
-    checkboxInput('showSim','Show simulated curve')
+    checkboxInput('showSim','Show simulated curve'),
+    downloadButton('genPdf','Download pdf of plots')
   #  checkboxInput('showAnalyticProfile','Display analytic solutions'),
   #  sliderInput('alpha',HTML('&alpha;'),min=0,max=1,step=.0000001),
   #  sliderInput('lambda',HTML('&lambda;'),min=0,max=1,step=.01),
