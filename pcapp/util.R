@@ -5,18 +5,20 @@ availableDatasetList<-function(){
   ret<-dir('data')
   ret<-ret[ret!='user_defined']
   l<-list()
-  for(i in 1:length(ret)){
-    r<-readRDS(paste0('cache/mcmc_',ret[i]))
-    l[i]<-paste0(
-      substr(ret[i],1,nchar(ret[i])-4),
-      ' (N=',
-      r$N,
-      ', lambda=',
-      format(r$lambda,digits=3),
-      ', tau=',
-      format(r$tau,digits=3),
-      ')'
-    )
+  if(length(ret)){
+    for(i in 1:length(ret)){
+      r<-readRDS(paste0('cache/mcmc_',ret[i]))
+      l[i]<-paste0(
+        substr(ret[i],1,nchar(ret[i])-4),
+        ' (N=',
+        r$N,
+        ', lambda=',
+        format(r$lambda,digits=3),
+        ', tau=',
+        format(r$tau,digits=3),
+        ')'
+      )
+    }
   }
   names(ret)=l
   c(ret,'user_defined')
@@ -25,10 +27,10 @@ availableDatasetList<-function(){
 #Assume that the names are of the form 'X<day number>'
 getNeutralDriftParams<-function(neutralDriftData,name){
   if(is.null(neutralDriftData)){print('Got a null...');return(NULL)}
-  params<-fitNeutralDrift(neutralDriftData,strtoi(substring(names(neutralDriftData),2)))
+  mcmc<-fitNeutralDrift(neutralDriftData,strtoi(substring(names(neutralDriftData),2)))
   #HACK
-  saveRDS(paste0('raw/raw_',name))
-  return(getNeutralDirftParams(params))
+  saveRDS(mcmc,paste0('raw/raw_',name))
+  return(getNeutralDirftParams(mcmc))
 }
 
 handleUpload<-function(uploadedDataset){

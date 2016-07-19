@@ -1,3 +1,5 @@
+library(ggplot2)
+library(stringr)
 library(shiny)
 library(plyr)
 library(dplyr)
@@ -63,13 +65,12 @@ genClonPlots<-function(input){
 
 genPosteriorPlots<-function(input){
   p<-list()
-  for(i in 1:length(input$datasets)){
-    #d<-readRDS(paste0('data/',input$datasets[i]))
-    #t<-strtoi(substring(colnames(d),2))
-    #Check this works later...
-    p[i]<-plotPosterior_Neutral(readRDS(paste0('raw/raw_',input$datasets[i])))
+  ds<-input$datasets[input$datasets!='user_defined']
+  for(i in 1:length(ds)){
+    p[[i]]<-plotPosterior_Neutral(readRDS(paste0('raw/raw_',ds[i])))
   }
-  multiplot(plotlist=p)
+  if(i>1)p[[1]]<-do.call(grid.arrange,c(p,ncol=1))
+  p[[1]]
 }
 
 serve<-function(input,output){
