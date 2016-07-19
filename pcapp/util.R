@@ -23,9 +23,12 @@ availableDatasetList<-function(){
 }
 
 #Assume that the names are of the form 'X<day number>'
-getNeutralDriftParams<-function(neutralDriftData){
+getNeutralDriftParams<-function(neutralDriftData,name){
   if(is.null(neutralDriftData)){print('Got a null...');return(NULL)}
-  return(getNeutralDirftParams(fitNeutralDrift(neutralDriftData,strtoi(substring(names(neutralDriftData),2)))))
+  params<-fitNeutralDrift(neutralDriftData,strtoi(substring(names(neutralDriftData),2)))
+  #HACK
+  saveRDS(paste0('raw/raw_',name))
+  return(getNeutralDirftParams(params))
 }
 
 handleUpload<-function(uploadedDataset){
@@ -34,7 +37,7 @@ handleUpload<-function(uploadedDataset){
   saveName<-paste0(substr(uploadedDataset$name,1,nchar(uploadedDataset$name)-4),'rds')
   if(saveName=='user_defined')return('Please choose another name!')
   saveRDS(uploadedObj,paste0('data/',saveName))
-  saveRDS(getNeutralDriftParams(uploadedObj),paste0('cache/mcmc_',saveName))
+  saveRDS(getNeutralDriftParams(uploadedObj,saveName),paste0('cache/mcmc_',saveName))
 }
 
 processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau){
@@ -74,7 +77,6 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau){
       rawIn<-readRDS(paste0('data/',selectedDatasets[i]))
       if(selectedDatasets[i]!='user_defined'){
         rawIn<-rawIn/rep(colSums(rawIn),each=nrow(rawIn))
-        print(colSums(rawIn))
         rawData<-rbind.fill(
           rawData,
           cbind(
