@@ -14,8 +14,8 @@ NS_MAX<-20
 MAXTIME_MIN<-30
 MAXTIME_MAX<-1000
 MAXTIME_DISPLAYTIME<-1000
-NUMRUNS_MIN<-200
-NUMRUNS_MAX<-200000
+NUMRUNS_MIN<-10000
+NUMRUNS_MAX<-1000000
 NUM_TIME_POINTS<-1000
 
 handleUpload<-function(uploadedDataset){
@@ -95,10 +95,10 @@ clApp<-shinyUI(fluidPage(
   ),
   flowLayout(
     sliderInput('displayTime','Distribution display time',0,MAXTIME_DISPLAYTIME,.5*MAXTIME_DISPLAYTIME),
-    sliderInput('mu',HTML('&mu;'),0,.2,.01,step=.001),
-    sliderInput('lambda',HTML('&lambda;'),0,.2,.01,step=.001),
+    sliderInput('mu',HTML('&mu;'),0,.0001,.00005,step=.000001),
+    sliderInput('lambda',HTML('&lambda;'),0,.5,.01,step=.001),
     sliderInput('N','N',3,20,10),
-    sliderInput('numSim','Number of simulations to run',NUMRUNS_MIN,NUMRUNS_MAX,1000),
+    sliderInput('numSim','Number of simulations to run',NUMRUNS_MIN,NUMRUNS_MAX,.5*(NUMRUNS_MIN+NUMRUNS_MAX)),
     checkboxInput('showSim','Show simulated curve')
   #  checkboxInput('showAnalyticProfile','Display analytic solutions'),
   #  sliderInput('alpha',HTML('&alpha;'),min=0,max=1,step=.0000001),
