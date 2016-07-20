@@ -44,42 +44,21 @@ handleUpload<-function(uploadedDataset){
 
 processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau){
   analyticPlotTimes<-seq(TIME_INTERVAL,mouseLife,TIME_INTERVAL)
-  #This feels rather hacky...
-  if(length(selectedDatasets)){
-    rawIn<-readRDS(paste0('data/',selectedDatasets[1]))
-    if(selectedDatasets[1]!='user_defined'){
+  rawData<-NULL
+  analyticData<-NULL
+  for(i in 1:length(selectedDatasets)){
+    #Need rbind.fill - should perhaps actually gather data earlier...
+    rawIn<-readRDS(paste0('data/',selectedDatasets[i]))
+    if(selectedDatasets[i]!='user_defined'){
       rawIn<-rawIn/rep(colSums(rawIn),each=nrow(rawIn))
-      rawData<-cbind(
-        rawIn,
-        experiment=selectedDatasets[1],
-        proportion=1:nBins
-      )
-    }
-
-    analyticIn<-readRDS(paste0('cache/mcmc_',selectedDatasets[1]))
-    analyticIn<-data.frame(Crypt_drift_c(
-      analyticIn$lambda,
-      analyticIn$lambda,
-      analyticIn$N,
-      pmax(analyticPlotTimes-analyticIn$tau,0),
-      1,
-      nBins
-    ))
-    names(analyticIn)<-analyticPlotTimes
-    analyticData<-cbind(
-      analyticIn,
-      experiment=selectedDatasets[1],
-      proportion=1:nBins
-      #time<-analyticPlotTimes
-    )
-  }
-  if(length(selectedDatasets)>1){
-    for(i in 2:length(selectedDatasets)){
-      #Need rbind.fill - should perhaps actually gather data earlier...
-      rawIn<-readRDS(paste0('data/',selectedDatasets[i]))
-      if(selectedDatasets[i]!='user_defined'){
-        rawIn<-rawIn/rep(colSums(rawIn),each=nrow(rawIn))
-        rawData<-rbind.fill(
+      rawData<-if(i==1){
+        cbind(
+          rawIn,
+          experiment=selectedDatasets[i],
+          proportion=1:nBins
+        )
+      }else{
+        rbind.fill(
           rawData,
           cbind(
             rawIn,
@@ -88,25 +67,28 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau){
           )
         )
       }
-      #Analytic stuff
-      analyticIn<-readRDS(paste0('cache/mcmc_',selectedDatasets[i]))
-      analyticIn<-data.frame(Crypt_drift_c(
-        analyticIn$lambda,
-        analyticIn$lambda,
-        analyticIn$N,
-        #Probabilities fixed 
-        pmax(analyticPlotTimes-analyticIn$tau,0),
-        1,
-        nBins
-      ))
-      names(analyticIn)<-analyticPlotTimes
-      analyticIn<-cbind(
-        analyticIn,
-        experiment=selectedDatasets[i],
-        proportion=1:nBins
-        #time<-analyticPlotTimes
-      )
-      analyticData<-rbind(
+    }
+    #Analytic stuff
+    analyticIn<-readRDS(paste0('cache/mcmc_',selectedDatasets[i]))
+    analyticIn<-data.frame(Crypt_drift_c(
+      analyticIn$lambda,
+      analyticIn$lambda,
+      analyticIn$N,
+      #Probabilities fixed 
+      pmax(analyticPlotTimes-analyticIn$tau,0),
+      1,
+      nBins
+    ))
+    names(analyticIn)<-analyticPlotTimes
+    analyticIn<-cbind(
+      analyticIn,
+      experiment=selectedDatasets[i],
+      proportion=1:nBins
+    )
+    analyticData<-if(i==1){
+      analyticIn
+    }else{
+      rbind(
         analyticData,
         analyticIn
       )
@@ -125,4 +107,53 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau){
     }else return(list(NULL,analyticData))
   }
   list(NULL,NULL)
+}
+
+
+genExpPlots<-function(input){
+  saveRDS(list(lambda=input$lambda,tau=input$tau,N=input$N),'cache/mcmc_user_defined')
+  if(length(input$datasets)){
+    renderedData<-processDataForPlots(input$datasets,input$T)
+    renderedData[[2]]<-ddply(renderedData[[2]],.(experiment,time),summarize,expectation=sum(proportion*p)/nBins)
+    if(!is.null(renderedData[[1]])){
+      renderedData[[1]]<-ddply(renderedData[[1]],.(experiment,time),summarize,expectation=sum(proportion*n)/nBins)
+      ggplot()+
+        geom_point(data=renderedData[[1]],mapping=aes(x=time,y=expectation,col=experiment))+
+        geom_line(data=renderedData[[2]],mapping=aes(x=time,y=expectation,col=experiment))+
+        ggtitle('Expected proportion of crypt occupied by clones where clones found')
+    }else{
+      ggplot()+
+        geom_line(data=renderedData[[2]],mapping=aes(x=time,y=expectation,col=experiment))+
+        ggtitle('Expected proportion of crypt occupied by clones where clones found')
+    }
+  }
+}
+
+genClonPlots<-function(input){
+  saveRDS(list(lambda=input$lambda,tau=input$tau,N=input$N),'cache/mcmc_user_defined')
+  if(length(input$datasets)){
+    renderedData<-processDataForPlots(input$datasets,input$T,input$N,input$lambda,input$tau)
+    if(!is.null(renderedData[[1]])){
+      ggplot()+
+        geom_point(data=renderedData[[1]],mapping=aes(x=time,y=n,col=experiment))+
+        geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=experiment,col=experiment))+
+        facet_grid(~proportion)+
+        ggtitle('Clonal drift profiles')
+    }else{
+      ggplot()+
+        geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=experiment,col=experiment))+
+        facet_grid(~proportion)+
+        ggtitle('Clonal drift profiles')
+    }
+  }
+}
+
+genPosteriorPlots<-function(input){
+  p<-list()
+  ds<-input$datasets[input$datasets!='user_defined']
+  for(i in 1:length(ds)){
+    p[[i]]<-plotPosterior_Neutral(readRDS(paste0('raw/raw_',ds[i])))
+  }
+  if(i>1)p[[1]]<-do.call(grid.arrange,c(p,ncol=1))
+  p[[1]]
 }
