@@ -46,15 +46,16 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
   analyticPlotTimes<-seq(TIME_INTERVAL,mouseLife,TIME_INTERVAL)
   rawData<-NULL
   analyticData<-NULL
-  errData<-list()
+  errData<-NULL
   for(i in 1:length(selectedDatasets)){
     #Need rbind.fill - should perhaps actually gather data earlier...
     rawIn<-readRDS(paste0('data/',selectedDatasets[i]))
     analyticIn<-readRDS(paste0('cache/mcmc_',selectedDatasets[i]))
+    errIn<-NULL
 
     #Get error bars from Ed's fn
     if(errorBars){
-      errData<-format_exp_data(
+      errIn<-format_exp_data(
         format_tbl2list(
           rawIn,
           strtoi(substring(names(rawIn),2))
@@ -63,32 +64,43 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
       )
 
       #?!?!?!?!?!?!?!?!?!!
-      errData<-data.frame(
-        nths=if(typeof(errData$Nths[1])=='character') errData$Nths else errData$Nths[[1]],
-        lo=if(typeof(errData$low_lim)=='character')errData$low_lim else errData$low_lim[[1]],
-        hi=if(typeof(errData$hi_lim)=='character')errData$hi_lim else errData$hi_lim[[1]],
-        time=if(typeof(errData$Day)=='character')errData$Day else errData$Day[[1]],
+      prop<-if(typeof(errIn$Nths[1])=='character') errIn$Nths else errIn$Nths[[1]]
+      errIn<-data.frame(
+        proportion=prop,
+        lo=if(typeof(errIn$low_lim)=='character')errIn$low_lim else errIn$low_lim[[1]],
+        hi=if(typeof(errIn$hi_lim)=='character')errIn$hi_lim else errIn$hi_lim[[1]],
+        time=if(typeof(errIn$Day)=='character')errIn$Day else errIn$Day[[1]],
         experiment=selectedDatasets[i]
       )
-      print(head(errData))
     }
 
     if(selectedDatasets[i]!='user_defined'){
-      rawIn<-rawIn/rep(colSums(rawIn),each=nrow(rawIn))
-      rawData<-if(i==1){
-        cbind(
-          rawIn,
-          experiment=selectedDatasets[i],
-          proportion=1:nBins
+      rawIn<-cbind(
+        #Normalise to proportions at each time rather than raw counts
+        rawIn/rep(colSums(rawIn),each=nrow(rawIn)),
+        experiment=selectedDatasets[i],
+        proportion=1:nBins
+      )
+
+      #if(errorBars){
+      #  rawIn<-full_join(errIn,rawIn,by=c(experiment,time,frac))
+      #}
+
+      errData<-if(i==1){
+        errIn
+      }else{
+        rbind.fill(
+          errData,
+          errIn
         )
+      }
+
+      rawData<-if(i==1){
+        rawIn
       }else{
         rbind.fill(
           rawData,
-          cbind(
-            rawIn,
-            experiment=selectedDatasets[i],
-            proportion=1:nBins
-          )
+          rawIn
         )
       }
     }
@@ -128,6 +140,16 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
       rawData<-gather(rawData,'time','n',1:(ncol(rawData)-2))
       #coerce time points in raw data into numers
       rawData[['time']]<-strtoi(substring(rawData[['time']],2))
+      if(errorBars){
+        print(head(rawData))
+        print(head(errData))
+        errData$time<-as.numeric(errData$time)
+        rawData$time<-as.numeric(rawData$time)
+        errData$proportion<-as.numeric(errData$proportion)
+        rawData$proportion<-as.numeric(rawData$proportion)
+        rawData<-full_join(rawData,errData,by=c('proportion','experiment','time'))
+        print(head(rawData))
+      }
       return(list(rawData,analyticData))
     }else return(list(NULL,analyticData))
   }
@@ -159,12 +181,17 @@ genClonPlots<-function(input){
   if(length(input$datasets)){
     renderedData<-processDataForPlots(input$datasets,input$T,input$N,input$lambda,input$tau,T)
     if(!is.null(renderedData[[1]])){
+      #!?!?!?!?! Print statements are necessary, or it breaks.
+      #Who knows why
+      print('eh')
       ggplot()+
         geom_point(data=renderedData[[1]],mapping=aes(x=time,y=n,col=experiment))+
         geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=experiment,col=experiment))+
+        geom_errorbar(aes(x=renderedData[[1]],ymax=hi,ymin=lo))+
         ylab('p')+
         facet_grid(~proportion)+
         ggtitle('Clonal drift profiles')
+      print('oh')
     }else{
       ggplot()+
         geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=experiment,col=experiment))+
