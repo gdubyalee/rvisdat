@@ -37,6 +37,8 @@ serve<-function(input,output){
     content=function(file){
       ggsave(
         file,
+        width=12,
+        height=6,
         plot=genClonPlots(input),
         device='pdf'
       )

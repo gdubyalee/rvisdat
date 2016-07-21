@@ -137,11 +137,13 @@ genClonPlots<-function(input){
       ggplot()+
         geom_point(data=renderedData[[1]],mapping=aes(x=time,y=n,col=experiment))+
         geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=experiment,col=experiment))+
+        ylab('p')+
         facet_grid(~proportion)+
         ggtitle('Clonal drift profiles')
     }else{
       ggplot()+
         geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=experiment,col=experiment))+
+        ylab('p')+
         facet_grid(~proportion)+
         ggtitle('Clonal drift profiles')
     }

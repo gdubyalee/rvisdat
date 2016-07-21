@@ -40,8 +40,8 @@ generatePlots<-function(input){
       simFrame[['partial']]<-rowSums(simFrame[,2:input$N])
       simFrame[['whole']]<-simFrame[[input$N+1]]
       dSim<-rbind.data.frame(
-        data.frame(time=simFrame[['time']],value=simFrame[['partial']],type='partial'),
-        data.frame(time=simFrame[['time']],value=simFrame[['whole']],type='whole')
+        data.frame(time=simFrame[['time']],value=simFrame[['partial']],type='Simulated Partial Clones'),
+        data.frame(time=simFrame[['time']],value=simFrame[['whole']],type='Simulated Whole Clones')
       )
       simLine<-geom_line(data=dSim,aes(x=time,y=value,color=type))
       
@@ -57,15 +57,13 @@ generatePlots<-function(input){
       geom_vline(xintercept=input$displayTime)+
       facet_wrap(~Location)+
       simLine
-    #p2<-NULL
-    #grid.arrange(p1,p2,nRow=2)
     if(input$showSim)p1<-grid.arrange(p1,p2)
     p1
   }
 }
 
 handleUpload<-function(uploadedDataset){
-  uploadedObj<-read.csv(uploadedDataset$datapath)#,sep=' ')
+  uploadedObj<-read.csv(uploadedDataset$datapath)
   #Assume filename is [NAME].rds for now
   saveName<-paste0(substr(uploadedDataset$name,1,nchar(uploadedDataset$name)-3),'rds')
   saveRDS(uploadedObj,paste0('data/',saveName))
@@ -75,7 +73,7 @@ handleUpload<-function(uploadedDataset){
 
 serve<-function(input,output){
   output$availableDatasets<-renderUI({
-    radioButtons('dataset','Visualise datasets:',dir('data'))#c('randomly generated simulation',dir('data')))
+    radioButtons('dataset','Visualise datasets:',dir('data'))
   })
   output$clPlots<-renderPlot({
     generatePlots(input)
@@ -85,6 +83,8 @@ serve<-function(input,output){
     content=function(file){
       ggsave(
         file,
+        width=12,
+        height=8,
         plot=generatePlots(input),
         device='pdf'
       )
@@ -122,19 +122,5 @@ clApp<-shinyUI(fluidPage(
     sliderInput('numSim','Number of simulations to run',NUMRUNS_MIN,NUMRUNS_MAX,.5*(NUMRUNS_MIN+NUMRUNS_MAX)),
     checkboxInput('showSim','Show simulated curve'),
     downloadButton('genPdf','Download pdf of plots')
-  #  checkboxInput('showAnalyticProfile','Display analytic solutions'),
-  #  sliderInput('alpha',HTML('&alpha;'),min=0,max=1,step=.0000001),
-  #  sliderInput('lambda',HTML('&lambda;'),min=0,max=1,step=.01),
-  #  sliderInput('Ns',HTML('N_s'),min=3,max=20),
-  #  sliderInput('maxTime','Maximum time to plot analytic solution to',min=200,max=1000)
-  )#,
-  #flowLayout(
-  #  h2('Simulate data'),
-  #  sliderInput('mu',HTML('&mu;'),MU_MIN,MU_MAX,.5*(MU_MIN+MU_MAX),step=.01),
-  #  sliderInput('lambda',HTML('&lambda; (cell replacement rate)'),LAMBDA_MIN,LAMBDA_MAX,.5*(LAMBDA_MIN+LAMBDA_MAX),step=.01),
-  #  sliderInput('Pr','Pr',PR_MIN,PR_MAX,.5*(PR_MIN+PR_MAX),step=.01),
-  #  sliderInput('Ns','N (#stem cells per crypt)',NS_MIN,NS_MAX,.5*(NS_MIN+NS_MAX)),
-  #  sliderInput('maxTime','Max time to plot',MAXTIME_MIN,MAXTIME_MAX,.5*(MAXTIME_MIN+MAXTIME_MAX),step=.01),
-  #  sliderInput('numRuns','Number of runs to simulate',NUMRUNS_MIN,NUMRUNS_MAX,.5*(NUMRUNS_MIN+NUMRUNS_MAX))
-  #)
+  )
 ))
