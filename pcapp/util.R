@@ -42,13 +42,37 @@ handleUpload<-function(uploadedDataset){
   saveRDS(getNeutralDriftParams(uploadedObj,saveName),paste0('cache/mcmc_',saveName))
 }
 
-processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau){
+processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=F){
   analyticPlotTimes<-seq(TIME_INTERVAL,mouseLife,TIME_INTERVAL)
   rawData<-NULL
   analyticData<-NULL
+  errData<-list()
   for(i in 1:length(selectedDatasets)){
     #Need rbind.fill - should perhaps actually gather data earlier...
     rawIn<-readRDS(paste0('data/',selectedDatasets[i]))
+    analyticIn<-readRDS(paste0('cache/mcmc_',selectedDatasets[i]))
+
+    #Get error bars from Ed's fn
+    if(errorBars){
+      errData<-format_exp_data(
+        format_tbl2list(
+          rawIn,
+          strtoi(substring(names(rawIn),2))
+        ),
+        clone_fractions=nrow(rawIn)
+      )
+
+      #?!?!?!?!?!?!?!?!?!!
+      errData<-data.frame(
+        nths=if(typeof(errData$Nths[1])=='character') errData$Nths else errData$Nths[[1]],
+        lo=if(typeof(errData$low_lim)=='character')errData$low_lim else errData$low_lim[[1]],
+        hi=if(typeof(errData$hi_lim)=='character')errData$hi_lim else errData$hi_lim[[1]],
+        time=if(typeof(errData$Day)=='character')errData$Day else errData$Day[[1]],
+        experiment=selectedDatasets[i]
+      )
+      print(head(errData))
+    }
+
     if(selectedDatasets[i]!='user_defined'){
       rawIn<-rawIn/rep(colSums(rawIn),each=nrow(rawIn))
       rawData<-if(i==1){
@@ -69,7 +93,6 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau){
       }
     }
     #Analytic stuff
-    analyticIn<-readRDS(paste0('cache/mcmc_',selectedDatasets[i]))
     analyticIn<-data.frame(Crypt_drift_c(
       analyticIn$lambda,
       analyticIn$lambda,
@@ -85,6 +108,7 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau){
       experiment=selectedDatasets[i],
       proportion=1:nBins
     )
+
     analyticData<-if(i==1){
       analyticIn
     }else{
@@ -94,6 +118,7 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau){
       )
     }
   }
+
 
   if(length(selectedDatasets)){
     #Now make the frames into collections of time points rather than having huge numbers of colu,mns in general
@@ -132,7 +157,7 @@ genExpPlots<-function(input){
 genClonPlots<-function(input){
   saveRDS(list(lambda=input$lambda,tau=input$tau,N=input$N),'cache/mcmc_user_defined')
   if(length(input$datasets)){
-    renderedData<-processDataForPlots(input$datasets,input$T,input$N,input$lambda,input$tau)
+    renderedData<-processDataForPlots(input$datasets,input$T,input$N,input$lambda,input$tau,T)
     if(!is.null(renderedData[[1]])){
       ggplot()+
         geom_point(data=renderedData[[1]],mapping=aes(x=time,y=n,col=experiment))+
