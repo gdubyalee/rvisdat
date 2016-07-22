@@ -191,7 +191,6 @@ genClonPlots<-function(input){
         ylab('p')+
         facet_grid(~proportion)+
         ggtitle('Clonal drift profiles')
-      print('oh')
     }else{
       ggplot()+
         geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=experiment,col=experiment))+
