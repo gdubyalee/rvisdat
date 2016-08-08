@@ -67,9 +67,9 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
       prop<-if(typeof(errIn$Nths[1])=='character') errIn$Nths else errIn$Nths[[1]]
       errIn<-data.frame(
         proportion=prop,
-        lo=if(typeof(errIn$low_lim)=='character')errIn$low_lim else errIn$low_lim[[1]],
-        hi=if(typeof(errIn$hi_lim)=='character')errIn$hi_lim else errIn$hi_lim[[1]],
-        time=if(typeof(errIn$Day)=='character')errIn$Day else errIn$Day[[1]],
+        lo=if(typeof(errIn$low_lim)=='character'||typeof(errIn$low_lim)=='double')errIn$low_lim else errIn$low_lim[[1]],
+        hi=if(typeof(errIn$hi_lim)=='character'||typeof(errIn$hi_lim)=='double')errIn$hi_lim else errIn$hi_lim[[1]],
+        time=if(typeof(errIn$Day)=='character'||typeof(errIn$Day)=='double')errIn$Day else errIn$Day[[1]],
         experiment=selectedDatasets[i]
       )
     }
@@ -94,7 +94,6 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
           errIn
         )
       }
-      print(errData)
 
       rawData<-if(i==1){
         rawIn
@@ -142,11 +141,10 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
       #coerce time points in raw data into numers
       rawData[['time']]<-strtoi(substring(rawData[['time']],2))
       if(errorBars){
-        errData$time<-as.numeric(errData$time)
+        errData$time<-as.numeric(levels(errData$time)[errData$time])
         rawData$time<-as.numeric(rawData$time)
         errData$proportion<-as.numeric(errData$proportion)
         rawData$proportion<-as.numeric(rawData$proportion)
-        print(rawData)
         rawData<-full_join(rawData,errData,by=c('proportion','experiment','time'))
       }
       return(list(rawData,analyticData))
@@ -166,11 +164,11 @@ genExpPlots<-function(input){
       ggplot()+
         geom_point(data=renderedData[[1]],mapping=aes(x=time,y=expectation,col=experiment))+
         geom_line(data=renderedData[[2]],mapping=aes(x=time,y=expectation,col=experiment))+
-        ggtitle('Expected proportion of crypt occupied by clones where clones found')
+        ggtitle('Average partial clone size')
     }else{
       ggplot()+
         geom_line(data=renderedData[[2]],mapping=aes(x=time,y=expectation,col=experiment))+
-        ggtitle('Expected proportion of crypt occupied by clones where clones found')
+        ggtitle('Average partial clone size')
     }
   }
 }
@@ -179,17 +177,18 @@ genClonPlots<-function(input){
   saveRDS(list(lambda=input$lambda,tau=input$tau,N=input$N),'cache/mcmc_user_defined')
   if(length(input$datasets)){
     renderedData<-processDataForPlots(input$datasets,input$T,input$N,input$lambda,input$tau,T)
+    p=NULL
     if(!is.null(renderedData[[1]])){
-      #print(head(renderedData[[1]])
-      ggplot()+
+      p=ggplot()+
         geom_point(data=renderedData[[1]],mapping=aes(x=time,y=n,col=experiment))+
         geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=experiment,col=experiment))+
-        #geom_errorbar(data=renderedData[[1]],mapping=aes(x=time,ymax=hi,ymin=lo))+
         ylab('p')+
         facet_grid(~proportion)+
         ggtitle('Clonal drift profiles')
+      if(input$errbars)p=p+geom_errorbar(data=renderedData[[1]],mapping=aes(x=time,ymax=hi,ymin=lo))
+      p
     }else{
-      ggplot()+
+      p=ggplot()+
         geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=experiment,col=experiment))+
         ylab('p')+
         facet_grid(~proportion)+

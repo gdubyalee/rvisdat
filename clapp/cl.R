@@ -51,7 +51,7 @@ generatePlots<-function(input){
       p2<-ggplot()+
         geom_line(data=data.frame(cells=distPlot,n=1:(input$N-1)),aes(x=n,y=cells))+
         labs(
-          x='Number of clones in crypt',
+          x='Proportion of crypt',
           y='count',
           title='distribution of partially mutant populated crypt population'
         )
@@ -106,7 +106,10 @@ serve<-function(input,output){
   })
 }
 
+addResourcePath('js','js')
 clApp<-shinyUI(fluidPage(
+  tags$script(src='js/widthhack.js'),
+  #Set the side panel width using js?
   titlePanel('Continuous Clonal Labelling Visualisation'),
   sidebarLayout(
     sidebarPanel(uiOutput('availableDatasets')),
@@ -116,14 +119,22 @@ clApp<-shinyUI(fluidPage(
   ),
   flowLayout(
     fileInput('newDataset','Upload a new dataset'),
-    radioButtons('smoothMethod','Fit method:',list('lm (linear model fit)'='lm','loess (smooth interpolation)'='loess','none'))
+    radioButtons(
+      'smoothMethod',
+      'Fit method:',
+      list(
+        'lm (linear model fit)'='lm',
+        'loess (smooth interpolation)'='loess',
+        'none'
+      )
+    )
   ),
   flowLayout(
     sliderInput('displayTime','Distribution display time',0,MAXTIME_DISPLAYTIME,.5*MAXTIME_DISPLAYTIME),
-    sliderInput('mu',HTML('&mu; (mutation rate)'),0,.0001,.00005,step=.000001),
+    sliderInput('mu',HTML('&mu; (mutation rate)'),0,.0002,.00005,step=.000001),
     sliderInput('lambda',HTML('&lambda; (replacement rate)'),0,.5,.01,step=.001),
     sliderInput('N','N (#stem cells/crypt)',3,20,10),
-    sliderInput('numCrypt','Number of crypts in sample tissue',10000,200000,100000),
+    sliderInput('numCrypt','Number of crypts in tissue',10000,200000,100000),
     sliderInput('P','Bias (.5 for neutral)',0,1,.5,step=.01),
     sliderInput('numSim','Number of simulations to run',NUMRUNS_MIN,NUMRUNS_MAX,.5*(NUMRUNS_MIN+NUMRUNS_MAX)),
     checkboxInput('showSim','Show simulated curve'),
