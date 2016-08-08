@@ -164,11 +164,11 @@ genExpPlots<-function(input){
       ggplot()+
         geom_point(data=renderedData[[1]],mapping=aes(x=time,y=expectation,col=experiment))+
         geom_line(data=renderedData[[2]],mapping=aes(x=time,y=expectation,col=experiment))+
-        ggtitle('Average partial clone size')
+        ggtitle('Average clone size vs time')
     }else{
       ggplot()+
         geom_line(data=renderedData[[2]],mapping=aes(x=time,y=expectation,col=experiment))+
-        ggtitle('Average partial clone size')
+        ggtitle('Average clone size vs time')
     }
   }
 }
