@@ -54,7 +54,7 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
     errIn<-NULL
 
     #Get error bars from Ed's fn
-    if(errorBars){
+    if(errorBars&&(selectedDatasets[i]!='user_defined')){
       errIn<-format_exp_data(
         format_tbl2list(
           rawIn,
@@ -94,6 +94,7 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
           errIn
         )
       }
+      print(errData)
 
       rawData<-if(i==1){
         rawIn
@@ -136,19 +137,17 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
     #Now make the frames into collections of time points rather than having huge numbers of colu,mns in general
     analyticData<-gather(analyticData,'time','p',1:(ncol(analyticData)-2))
     analyticData[['time']]<-as.numeric(analyticData[['time']])
-    if(exists('rawData')){
+    if(exists('rawData')&&length(rawData)){
       rawData<-gather(rawData,'time','n',1:(ncol(rawData)-2))
       #coerce time points in raw data into numers
       rawData[['time']]<-strtoi(substring(rawData[['time']],2))
       if(errorBars){
-        print(head(rawData))
-        print(head(errData))
         errData$time<-as.numeric(errData$time)
         rawData$time<-as.numeric(rawData$time)
         errData$proportion<-as.numeric(errData$proportion)
         rawData$proportion<-as.numeric(rawData$proportion)
+        print(rawData)
         rawData<-full_join(rawData,errData,by=c('proportion','experiment','time'))
-        print(head(rawData))
       }
       return(list(rawData,analyticData))
     }else return(list(NULL,analyticData))
@@ -181,13 +180,11 @@ genClonPlots<-function(input){
   if(length(input$datasets)){
     renderedData<-processDataForPlots(input$datasets,input$T,input$N,input$lambda,input$tau,T)
     if(!is.null(renderedData[[1]])){
-      #!?!?!?!?! Print statements are necessary, or it breaks.
-      #Who knows why
-      print('eh')
+      #print(head(renderedData[[1]])
       ggplot()+
         geom_point(data=renderedData[[1]],mapping=aes(x=time,y=n,col=experiment))+
         geom_line(data=renderedData[[2]],mapping=aes(x=time,y=p,group=experiment,col=experiment))+
-        geom_errorbar(aes(x=renderedData[[1]],ymax=hi,ymin=lo))+
+        #geom_errorbar(data=renderedData[[1]],mapping=aes(x=time,ymax=hi,ymin=lo))+
         ylab('p')+
         facet_grid(~proportion)+
         ggtitle('Clonal drift profiles')

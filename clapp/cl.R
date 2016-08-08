@@ -37,8 +37,9 @@ generatePlots<-function(input){
       )
       simFrame<-data.frame(t(sim))
       simFrame[['time']]<-timePts
-      simFrame[['partial']]<-rowSums(simFrame[,2:input$N])
-      simFrame[['whole']]<-simFrame[[input$N+1]]
+      #Correct for fixed tissue sample size
+      simFrame[['partial']]<-rowSums(simFrame[,2:input$N])*input$numCrypt/input$numSim
+      simFrame[['whole']]<-simFrame[[input$N+1]]*input$numCrypt/input$numSim
       dSim<-rbind.data.frame(
         data.frame(time=simFrame[['time']],value=simFrame[['partial']],type='Simulated Partial Clones'),
         data.frame(time=simFrame[['time']],value=simFrame[['whole']],type='Simulated Whole Clones')
@@ -49,7 +50,11 @@ generatePlots<-function(input){
       distPlot<-as.numeric(as.vector(simFrame[which.min(abs(timePts-input$displayTime)),2:input$N]))
       p2<-ggplot()+
         geom_line(data=data.frame(cells=distPlot,n=1:(input$N-1)),aes(x=n,y=cells))+
-        labs(x='Number of clones in crypt',y='count',title='distribution of partially mutant populated crypt population')
+        labs(
+          x='Number of clones in crypt',
+          y='count',
+          title='distribution of partially mutant populated crypt population'
+        )
     }
     p1<-ggplot()+
       geom_point(data=d,aes(x=Age,y=Clone.number,color=Type.Clones))+
@@ -111,14 +116,15 @@ clApp<-shinyUI(fluidPage(
   ),
   flowLayout(
     fileInput('newDataset','Upload a new dataset'),
-    radioButtons('smoothMethod','Fit method:',list('lm','glm','gam','loess','none'))
+    radioButtons('smoothMethod','Fit method:',list('lm (linear model fit)'='lm','loess (smooth interpolation)'='loess','none'))
   ),
   flowLayout(
     sliderInput('displayTime','Distribution display time',0,MAXTIME_DISPLAYTIME,.5*MAXTIME_DISPLAYTIME),
-    sliderInput('mu',HTML('&mu;'),0,.0001,.00005,step=.000001),
-    sliderInput('lambda',HTML('&lambda;'),0,.5,.01,step=.001),
-    sliderInput('N','N',3,20,10),
-    sliderInput('P','Bias',0,1,.5,step=.01),
+    sliderInput('mu',HTML('&mu; (mutation rate)'),0,.0001,.00005,step=.000001),
+    sliderInput('lambda',HTML('&lambda; (replacement rate)'),0,.5,.01,step=.001),
+    sliderInput('N','N (#stem cells/crypt)',3,20,10),
+    sliderInput('numCrypt','Number of crypts in sample tissue',10000,200000,100000),
+    sliderInput('P','Bias (.5 for neutral)',0,1,.5,step=.01),
     sliderInput('numSim','Number of simulations to run',NUMRUNS_MIN,NUMRUNS_MAX,.5*(NUMRUNS_MIN+NUMRUNS_MAX)),
     checkboxInput('showSim','Show simulated curve'),
     downloadButton('genPdf','Download pdf of plots')
