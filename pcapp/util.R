@@ -34,7 +34,7 @@ getNeutralDriftParams<-function(neutralDriftData,name){
 }
 
 handleUpload<-function(uploadedDataset){
-  uploadedObj<-read.csv(uploadedDataset$datapath,sep=' ')
+  uploadedObj<-read.csv(uploadedDataset$datapath)#,sep=' ')
   #Assume filename is [NAME].data for now
   saveName<-paste0(substr(uploadedDataset$name,1,nchar(uploadedDataset$name)-4),'rds')
   if(saveName=='user_defined')return('Please choose another name!')
@@ -64,12 +64,12 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
       )
 
       #?!?!?!?!?!?!?!?!?!!
-      prop<-if(typeof(errIn$Nths[1])=='character') errIn$Nths else errIn$Nths[[1]]
+      prop<-if(typeof(errIn$Nths[1])=='character') errIn$Nths else errIn[,'Nths']$data_Nths#errIn$Nths[[1]]
       errIn<-data.frame(
         proportion=prop,
-        lo=if(typeof(errIn$low_lim)=='character'||typeof(errIn$low_lim)=='double')errIn$low_lim else errIn$low_lim[[1]],
-        hi=if(typeof(errIn$hi_lim)=='character'||typeof(errIn$hi_lim)=='double')errIn$hi_lim else errIn$hi_lim[[1]],
-        time=if(typeof(errIn$Day)=='character'||typeof(errIn$Day)=='double')errIn$Day else errIn$Day[[1]],
+        lo=if(typeof(errIn$low_lim)=='character'||typeof(errIn$low_lim)=='double')errIn$low_lim else errIn[,'low_lim']$data_Nths,#errIn$low_lim[[1]],
+        hi=if(typeof(errIn$hi_lim)=='character'||typeof(errIn$hi_lim)=='double')errIn$hi_lim else errIn[,'hi_lim']$data_Nths,#errIn$hi_lim[[1]],
+        time=if(typeof(errIn$Day)=='character'||typeof(errIn$Day)=='double')errIn$Day else errIn[,'Day']$data_Nths,#errIn$Day[[1]],
         experiment=selectedDatasets[i]
       )
     }
@@ -86,6 +86,7 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
       #  rawIn<-full_join(errIn,rawIn,by=c(experiment,time,frac))
       #}
 
+      print('yup')
       errData<-if(i==1){
         errIn
       }else{
@@ -94,6 +95,7 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
           errIn
         )
       }
+      print('yup')
 
       rawData<-if(i==1){
         rawIn

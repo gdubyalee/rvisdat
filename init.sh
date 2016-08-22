@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #modify firewall
-ufw allow 15000
-ufw allow 20000
+ufw allow 15123
+ufw allow 20321
 
 su george -c ./runapps.sh
