@@ -86,7 +86,6 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
       #  rawIn<-full_join(errIn,rawIn,by=c(experiment,time,frac))
       #}
 
-      print('yup')
       errData<-if(i==1){
         errIn
       }else{
@@ -95,7 +94,6 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
           errIn
         )
       }
-      print('yup')
 
       rawData<-if(i==1){
         rawIn
@@ -166,10 +164,12 @@ genExpPlots<-function(input){
       ggplot()+
         geom_point(data=renderedData[[1]],mapping=aes(x=time,y=expectation,col=experiment))+
         geom_line(data=renderedData[[2]],mapping=aes(x=time,y=expectation,col=experiment))+
+        labs(y='clone size')+
         ggtitle('Average clone size vs time')
     }else{
       ggplot()+
         geom_line(data=renderedData[[2]],mapping=aes(x=time,y=expectation,col=experiment))+
+        labs(y='clone size')+
         ggtitle('Average clone size vs time')
     }
   }

@@ -1,6 +1,7 @@
 library(ggplot2)
 library(stringr)
 library(shiny)
+library(shinyBS)
 library(plyr)
 library(dplyr)
 library(InferCryptDrift)
@@ -74,26 +75,40 @@ serve<-function(input,output){
       })
     }
   })
+
+  output$csvImg<-renderImage({return(list(
+    src='doc/sample_xls_format.png',
+    contentType='image/jpeg',
+    alt='How this should look in Excel'
+  ))},deleteFile=FALSE)
   
 }
 
 pcApp<-shinyUI(fluidPage(
-  titlePanel('Clonal pulse-chase visualisation'),
+  titlePanel('Pulse-chase Data Visualisation'),
+  actionButton('csvInfo','About'),
   #Display available datasets and expected number of clones in first row
   sidebarLayout(
     #List available data in side panel
     sidebarPanel(
       HTML(
         '<h4>Add new datasets using the file upload input below.
-        the \'user defined\' line can be adjusted, when selected, using the sliders below.
-        All curves shown are of the same analytic solution of the uynderlying dynamical equations, but with different choices of parameters (N,&lambda;,&tau;) to fit observed datasets.
+        The \'user defined\' line can be adjusted, when selected, using the sliders below.
         Note all plots make assumptions of neutral drift (mutants have no competitive bias) for now.</h4>'
       ),
       checkboxInput('errbars','Display error bars'),
       uiOutput('availableDatasets')
     ),
     mainPanel(
-      plotOutput('expectation')
+      plotOutput('expectation'),
+      bsModal(
+        'csvModal',
+        'Uploaded data format','csvInfo',size='large','The format expected is a csv file with Timepoints as columns, headed D<day number>.  In Excel just select csv under the format field when saving.',
+        br(),br(),
+        imageOutput('csvImg'),
+        'the plaintext file should look like',
+        HTML('<br><br>D4,D7,D10,D14,D21<br>24,27,37,20,10<br>13,74,53,43,34<br>3,18,17,36,35<br>0,22,28,75,53<br>0,2,4,32,20<br>0,2,4,12,11<br>0,2,2,15,13<br>0,8,4,26,43<br>')
+      )
     )
   ),
   fluidRow(
