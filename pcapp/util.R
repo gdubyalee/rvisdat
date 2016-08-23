@@ -24,7 +24,7 @@ availableDatasetList<-function(){
   c(ret,'user_defined')
 }
 
-#Assume that the names are of the form 'X<day number>'
+#Assume that the names are of the form 'D<day number>'
 getNeutralDriftParams<-function(neutralDriftData,name){
   if(is.null(neutralDriftData)){print('Got a null...');return(NULL)}
   mcmc<-fitNeutralDrift(neutralDriftData,strtoi(substring(names(neutralDriftData),2)))
@@ -35,6 +35,8 @@ getNeutralDriftParams<-function(neutralDriftData,name){
 
 handleUpload<-function(uploadedDataset){
   uploadedObj<-read.csv(uploadedDataset$datapath)#,sep=' ')
+  colnames(uploadedObj)=paste0('D',substr(colnames(uploadedObj),2,length(colnames(uploadedObj))))
+  if(nrow(uploadedObj)!=8)return('Unexpected number of bins.')
   #Assume filename is [NAME].data for now
   saveName<-paste0(substr(uploadedDataset$name,1,nchar(uploadedDataset$name)-4),'rds')
   if(saveName=='user_defined')return('Please choose another name!')
@@ -43,6 +45,7 @@ handleUpload<-function(uploadedDataset){
 }
 
 processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=F){
+  errorBars=T
   analyticPlotTimes<-seq(TIME_INTERVAL,mouseLife,TIME_INTERVAL)
   rawData<-NULL
   analyticData<-NULL
@@ -63,13 +66,26 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
         clone_fractions=nrow(rawIn)
       )
 
-      #?!?!?!?!?!?!?!?!?!!
-      prop<-if(typeof(errIn$Nths[1])=='character') errIn$Nths else errIn[,'Nths']$data_Nths#errIn$Nths[[1]]
+      prop<-NULL
+      lo<-NULL
+      hi<-NULL
+      time<-NULL
+      if('data_Nths' %in% rownames(errIn)){
+        prop<-errIn[,'Nths']$data_Nths
+        lo=errIn[,'low_lim']$data_Nths
+        hi=errIn[,'hi_lim']$data_Nths
+        time=errIn[,'Day']$data_Nths
+      }else{
+        prop<-errIn$Nths
+        lo=errIn$low_lim
+        hi=errIn$hi_lim
+        time=errIn$Day
+      }
       errIn<-data.frame(
         proportion=prop,
-        lo=if(typeof(errIn$low_lim)=='character'||typeof(errIn$low_lim)=='double')errIn$low_lim else errIn[,'low_lim']$data_Nths,#errIn$low_lim[[1]],
-        hi=if(typeof(errIn$hi_lim)=='character'||typeof(errIn$hi_lim)=='double')errIn$hi_lim else errIn[,'hi_lim']$data_Nths,#errIn$hi_lim[[1]],
-        time=if(typeof(errIn$Day)=='character'||typeof(errIn$Day)=='double')errIn$Day else errIn[,'Day']$data_Nths,#errIn$Day[[1]],
+        lo=lo,
+        hi=hi,
+        time=time,
         experiment=selectedDatasets[i]
       )
     }

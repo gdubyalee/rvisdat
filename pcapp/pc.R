@@ -97,7 +97,15 @@ pcApp<-shinyUI(fluidPage(
         Note all plots make assumptions of neutral drift (mutants have no competitive bias) for now.</h4>'
       ),
       checkboxInput('errbars','Display error bars'),
-      uiOutput('availableDatasets')
+      fileInput('newDataset','Upload a new dataset'),
+      uiOutput('availableDatasets'),
+      br(),
+      downloadButton('genPdfExp','Download pdf of average clone size profile'),
+      br(),
+      downloadButton('genPdfCld','Download pdf of clonal drift profiles'),
+      br(),
+      downloadButton('posteriorPdf','Download pdf of fit')
+
     ),
     mainPanel(
       plotOutput('expectation'),
@@ -115,13 +123,8 @@ pcApp<-shinyUI(fluidPage(
     plotOutput('driftPlots')
   ),
   flowLayout(
-    fileInput('newDataset','Upload a new dataset'),
     sliderInput('lambda',HTML('&lambda; (replacement rate)'),LAMBDA_MIN,LAMBDA_MAX,.5*(LAMBDA_MIN+LAMBDA_MAX),step=.01),
     sliderInput('tau',HTML('&tau; (initial delay)'),TAU_MIN,TAU_MAX,.5*(TAU_MIN+TAU_MAX),step=.01),
     sliderInput('N','N (#active stem cells/crypt)',N_MIN,N_MAX,.5*(N_MIN+N_MAX)),
-    sliderInput('T','Maximum time in plot',MOUSE_TIME_MIN,MOUSE_TIME_MAX,.5*(MOUSE_TIME_MIN+MOUSE_TIME_MAX)),
-    downloadButton('genPdfExp','Download pdf of average clone size profile'),
-    downloadButton('genPdfCld','Download pdf of clonal drift profiles'),
-    downloadButton('posteriorPdf','Download pdf of fit')
-  )
+    sliderInput('T','Maximum time in plot',MOUSE_TIME_MIN,MOUSE_TIME_MAX,.5*(MOUSE_TIME_MIN+MOUSE_TIME_MAX))  )
 ))
