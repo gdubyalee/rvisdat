@@ -1,4 +1,5 @@
 TIME_INTERVAL<-1
+library(tools)
 
 
 availableDatasetList<-function(){
@@ -38,7 +39,9 @@ handleUpload<-function(uploadedDataset){
   colnames(uploadedObj)=paste0('D',substr(colnames(uploadedObj),2,length(colnames(uploadedObj))))
   if(nrow(uploadedObj)!=8)return('Unexpected number of bins.')
   #Assume filename is [NAME].data for now
-  saveName<-paste0(substr(uploadedDataset$name,1,nchar(uploadedDataset$name)-4),'rds')
+  #saveName<-paste0(substr(uploadedDataset$name,1,nchar(uploadedDataset$name)-4),'rds')
+  #Oh wait, that's stupid
+  saveName<-paste0(file_path_sans_ext(uploadedDataset$name)[[1]],'.rds')
   if(saveName=='user_defined')return('Please choose another name!')
   saveRDS(uploadedObj,paste0('data/',saveName))
   saveRDS(getNeutralDriftParams(uploadedObj,saveName),paste0('cache/mcmc_',saveName))
@@ -119,6 +122,9 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
           rawIn
         )
       }
+      print('eh')
+      print(rawData)
+      print('eh')
     }
     #Analytic stuff
     analyticIn<-data.frame(Crypt_drift_c(
@@ -153,6 +159,11 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
     analyticData<-gather(analyticData,'time','p',1:(ncol(analyticData)-2))
     analyticData[['time']]<-as.numeric(analyticData[['time']])
     if(exists('rawData')&&length(rawData)){
+      print('ehhh')
+      print(rawData)
+      rawData=select(rawData,-experiment,-proportion,everything())
+      print(rawData)
+      print('ehhh')
       rawData<-gather(rawData,'time','n',1:(ncol(rawData)-2))
       #coerce time points in raw data into numers
       rawData[['time']]<-strtoi(substring(rawData[['time']],2))
@@ -161,7 +172,10 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
         rawData$time<-as.numeric(rawData$time)
         errData$proportion<-as.numeric(errData$proportion)
         rawData$proportion<-as.numeric(rawData$proportion)
+        print(head(errData))
+        print(rawData)
         rawData<-full_join(rawData,errData,by=c('proportion','experiment','time'))
+        print(head(rawData))
       }
       return(list(rawData,analyticData))
     }else return(list(NULL,analyticData))

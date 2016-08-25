@@ -115,7 +115,9 @@ pcApp<-shinyUI(fluidPage(
         br(),br(),
         imageOutput('csvImg'),
         'the plaintext file should look like',
-        HTML('<br><br>D4,D7,D10,D14,D21<br>24,27,37,20,10<br>13,74,53,43,34<br>3,18,17,36,35<br>0,22,28,75,53<br>0,2,4,32,20<br>0,2,4,12,11<br>0,2,2,15,13<br>0,8,4,26,43<br>')
+        HTML('<br><br>D4,D7,D10,D14,D21<br>24,27,37,20,10<br>13,74,53,43,34<br>3,18,17,36,35<br>0,22,28,75,53<br>0,2,4,32,20<br>0,2,4,12,11<br>0,2,2,15,13<br>0,8,4,26,43<br>'),
+        br(),br(),
+        'The app will take a moment to process the uploaded data before it becomes available to view and is added to the list of available datasets.'
       )
     )
   ),
