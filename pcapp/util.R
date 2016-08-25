@@ -96,7 +96,8 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
     if(selectedDatasets[i]!='user_defined'){
       rawIn<-cbind(
         #Normalise to proportions at each time rather than raw counts
-        rawIn/rep(colSums(rawIn),each=nrow(rawIn)),
+        rawIn/rep(as.vector(colSums(rawIn)),each=nrow(rawIn)),
+        #t(t(rawIn)/colSums(rawIn)),
         experiment=selectedDatasets[i],
         proportion=1:nBins
       )
@@ -122,9 +123,6 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
           rawIn
         )
       }
-      print('eh')
-      print(rawData)
-      print('eh')
     }
     #Analytic stuff
     analyticIn<-data.frame(Crypt_drift_c(
@@ -159,11 +157,7 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
     analyticData<-gather(analyticData,'time','p',1:(ncol(analyticData)-2))
     analyticData[['time']]<-as.numeric(analyticData[['time']])
     if(exists('rawData')&&length(rawData)){
-      print('ehhh')
-      print(rawData)
       rawData=select(rawData,-experiment,-proportion,everything())
-      print(rawData)
-      print('ehhh')
       rawData<-gather(rawData,'time','n',1:(ncol(rawData)-2))
       #coerce time points in raw data into numers
       rawData[['time']]<-strtoi(substring(rawData[['time']],2))
@@ -172,10 +166,7 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
         rawData$time<-as.numeric(rawData$time)
         errData$proportion<-as.numeric(errData$proportion)
         rawData$proportion<-as.numeric(rawData$proportion)
-        print(head(errData))
-        print(rawData)
         rawData<-full_join(rawData,errData,by=c('proportion','experiment','time'))
-        print(head(rawData))
       }
       return(list(rawData,analyticData))
     }else return(list(NULL,analyticData))
