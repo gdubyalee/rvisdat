@@ -68,7 +68,8 @@ generatePlots<-function(input){
 }
 
 handleUpload<-function(uploadedDataset){
-  uploadedObj<-read.csv(uploadedDataset$datapath)
+  uploadedObj<-read.csv(uploadedDataset$datapath,stringsAsFactors=F)
+  uploadedObj$Location=factor(uploadedObj$location,levels=unique(uploadedObj$Location))
   #Assume filename is [NAME].rds for now
   saveName<-paste0(substr(uploadedDataset$name,1,nchar(uploadedDataset$name)-3),'rds')
   saveRDS(uploadedObj,paste0('data/',saveName))

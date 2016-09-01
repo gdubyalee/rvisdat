@@ -8,7 +8,7 @@ availableDatasetList<-function(){
   l<-list()
   if(length(ret)){
     for(i in 1:length(ret)){
-      r<-readRDS(paste0('cache/mcmc_',ret[i]))
+      r<-readStoredParams('mcmc',ret[i])#readRDS(paste0('cache/mcmc_',ret[i]))
       l[i]<-paste0(
         substr(ret[i],1,nchar(ret[i])-4),
         ' (N=',
@@ -25,13 +25,21 @@ availableDatasetList<-function(){
   c(ret,'user_defined')
 }
 
-#Assume that the names are of the form 'D<day number>'
-getNeutralDriftParams<-function(neutralDriftData,name){
-  if(is.null(neutralDriftData)){print('Got a null...');return(NULL)}
-  mcmc<-fitNeutralDrift(neutralDriftData,strtoi(substring(names(neutralDriftData),2)))
-  #HACK
-  saveRDS(mcmc,paste0('raw/raw_',name))
-  return(getNeutralDirftParams(mcmc))
+storeNewParams<-function(desc,entryName,obj){
+  dat=tryCatch(
+    {
+      readRDS(paste0('data/',entryName))
+    },
+    error=function(e){
+      return(list())
+    }
+  )
+  dat[[desc]]=obj
+  saveRDS(dat,paste0('data/',entryName))
+}
+
+readStoredParams<-function(desc,entryName){
+  return(readRDS(paste0('data/',entryName))[[desc]])
 }
 
 handleUpload<-function(uploadedDataset){
@@ -43,8 +51,11 @@ handleUpload<-function(uploadedDataset){
   #Oh wait, that's stupid
   saveName<-paste0(file_path_sans_ext(uploadedDataset$name)[[1]],'.rds')
   if(saveName=='user_defined')return('Please choose another name!')
-  saveRDS(uploadedObj,paste0('data/',saveName))
-  saveRDS(getNeutralDriftParams(uploadedObj,saveName),paste0('cache/mcmc_',saveName))
+  if(is.null(uploadedObj)){print('Got a null...');return(NULL)}
+  mcmc<-fitNeutralDrift(uploadedObj,strtoi(substring(names(uploadedObj),2)))
+  storeNewParams('raw',saveName,mcmc)#saveRDS(mcmc,paste0('raw/raw_',name))
+  storeNewParams('data',saveName,uploadedObj)#saveRDS(uploadedObj,paste0('data/',saveName))
+  storeNewParams('mcmc',saveName,getNeutralDirftParams(mcmc))#saveRDS(getNeutralDriftParams(uploadedObj,saveName),paste0('cache/mcmc_',saveName))
 }
 
 processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=F){
@@ -55,8 +66,8 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
   errData<-NULL
   for(i in 1:length(selectedDatasets)){
     #Need rbind.fill - should perhaps actually gather data earlier...
-    rawIn<-readRDS(paste0('data/',selectedDatasets[i]))
-    analyticIn<-readRDS(paste0('cache/mcmc_',selectedDatasets[i]))
+    rawIn<-readStoredParams('data',selectedDatasets[i])#readRDS(paste0('data/',selectedDatasets[i]))
+    analyticIn<-readStoredParams('mcmc',selectedDatasets[i])#readRDS(paste0('cache/mcmc_',selectedDatasets[i]))
     errIn<-NULL
 
     #Get error bars from Ed's fn
@@ -176,7 +187,7 @@ processDataForPlots<-function(selectedDatasets,mouseLife,N,lambda,tau,errorBars=
 
 
 genExpPlots<-function(input){
-  saveRDS(list(lambda=input$lambda,tau=input$tau,N=input$N),'cache/mcmc_user_defined')
+  storeNewParams('mcmc','user_defined',list(lambda=input$lambda,tau=input$tau,N=input$N))#saveRDS(list(lambda=input$lambda,tau=input$tau,N=input$N),'cache/mcmc_user_defined')
   if(length(input$datasets)){
     renderedData<-processDataForPlots(input$datasets,input$T)
     renderedData[[2]]<-ddply(renderedData[[2]],.(experiment,time),summarize,expectation=sum(proportion*p)/nBins)
@@ -197,7 +208,7 @@ genExpPlots<-function(input){
 }
 
 genClonPlots<-function(input){
-  saveRDS(list(lambda=input$lambda,tau=input$tau,N=input$N),'cache/mcmc_user_defined')
+  storeNewParams('mcmc','user_defined',list(lambda=input$lambda,tau=input$tau,N=input$N))#saveRDS(list(lambda=input$lambda,tau=input$tau,N=input$N),'cache/mcmc_user_defined')
   if(length(input$datasets)){
     renderedData<-processDataForPlots(input$datasets,input$T,input$N,input$lambda,input$tau,T)
     p=NULL
@@ -224,7 +235,7 @@ genPosteriorPlots<-function(input){
   p<-list()
   ds<-input$datasets[input$datasets!='user_defined']
   for(i in 1:length(ds)){
-    p[[i]]<-plotPosterior_Neutral(readRDS(paste0('raw/raw_',ds[i])))
+    p[[i]]<-plotPosterior_Neutral(readStoredParams('raw',ds[i]))
   }
   if(i>1)p[[1]]<-do.call(grid.arrange,c(p,ncol=1))
   p[[1]]

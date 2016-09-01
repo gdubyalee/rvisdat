@@ -76,6 +76,13 @@ serve<-function(input,output){
     }
   })
 
+  observeEvent(input$rmSel,{
+    for(f in input$datasets)if(f!='user_defined')file.remove(paste0('data/',f))
+    output$availableDatasets<-renderUI({
+      checkboxGroupInput('datasets','Available datasets',availableDatasetList())
+    })
+  })
+
   output$csvImg<-renderImage({return(list(
     src='doc/sample_xls_format.png',
     contentType='image/jpeg',
@@ -102,9 +109,14 @@ pcApp<-shinyUI(fluidPage(
       br(),
       downloadButton('genPdfExp','Download pdf of average clone size profile'),
       br(),
+      br(),
       downloadButton('genPdfCld','Download pdf of clonal drift profiles'),
       br(),
-      downloadButton('posteriorPdf','Download pdf of fit')
+      br(),
+      downloadButton('posteriorPdf','Download pdf of fit'),
+      br(),
+      br(),
+      actionButton('rmSel','Remove selected datasets')
 
     ),
     mainPanel(
