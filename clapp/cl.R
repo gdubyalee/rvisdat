@@ -1,4 +1,5 @@
 library(shiny)
+library(shinyBS)
 library(plyr)
 library(dplyr)
 library(InferCryptDrift)
@@ -25,7 +26,8 @@ generatePlots<-function(input){
     simLine<-NULL
     p2<-NULL
     if(input$showSim){
-      timePts<-seq(0,MAXTIME_DISPLAYTIME,length.out=NUM_TIME_POINTS)
+      maxTime<-max(d$Age)
+      timePts<-seq(0,maxTime,length.out=NUM_TIME_POINTS)
       sim<-sim_contLabelling(
         input$mu,
         input$lambda,
@@ -62,7 +64,7 @@ generatePlots<-function(input){
       geom_vline(xintercept=input$displayTime)+
       facet_wrap(~Location)+
       simLine
-    if(input$showSim)p1<-grid.arrange(p1,p2)
+    if(input$showSim)p1<-grid.arrange(p1,p2,ncol=2)
     p1
   }
 }
@@ -105,6 +107,18 @@ serve<-function(input,output){
       })
     }
   })
+  output$csvImg<-renderImage({return(list(
+    src='doc/sample_xls_format_cl.png',
+    contentType='image/jpeg',
+    alt='How this should look in Excel'
+  ))},deleteFile=FALSE)
+
+  observeEvent(input$rmSel,{
+    if(input$dataset!='user_defined')file.remove(paste0('data/',input$dataset))
+    output$availableDatasets<-renderUI({
+      radioButtons('dataset','Visualise datasets:',dir('data'))
+    })
+  })
 }
 
 addResourcePath('js','js')
@@ -112,33 +126,51 @@ clApp<-shinyUI(fluidPage(
   tags$script(src='js/widthhack.js'),
   #Set the side panel width using js?
   titlePanel('Continuous Clonal Labelling Visualisation'),
+  br(),
+  actionButton('csvInfo','About'),
   sidebarLayout(
-    sidebarPanel(uiOutput('availableDatasets')),
+    sidebarPanel(
+      fileInput('newDataset','Upload a new dataset'),
+      uiOutput('availableDatasets'),
+      radioButtons(
+        'smoothMethod',
+        'Fit method:',
+        list(
+          'lm (linear model fit)'='lm',
+          'loess (smooth interpolation)'='loess',
+          'none'
+        )
+      ),
+      checkboxInput('showSim','Show simulated curve'),
+      br(),
+      br(),
+      downloadButton('genPdf','Download pdf of plots'),
+      br(),
+      br(),
+      actionButton('rmSel','Remove selected dataset')
+    ),
     mainPanel(
-      plotOutput('clPlots')
-    )
-  ),
-  flowLayout(
-    fileInput('newDataset','Upload a new dataset'),
-    radioButtons(
-      'smoothMethod',
-      'Fit method:',
-      list(
-        'lm (linear model fit)'='lm',
-        'loess (smooth interpolation)'='loess',
-        'none'
+      plotOutput('clPlots'),
+      bsModal(
+        'csvModal',
+        'Uploaded data format','csvInfo',size='large','The format expected is a csv file with columns headed Age,Clone number,Location,Type.Clones.  In Excel just select csv under the format field when saving.',
+        br(),br(),
+        imageOutput('csvImg'),
+        'the plaintext file should look like',
+        HTML('<br><br>Age,Clone number,Location,Type.Clones<br>654,1598,Colon,Full Clones<br>673,1667,Colon,Full Clones<br><br>'),
+        br(),'  ...',
+        br(),br(),
+        'The uploaded file will then be appended to the list of available datasets.'
       )
     )
   ),
   flowLayout(
     sliderInput('displayTime','Distribution display time',0,MAXTIME_DISPLAYTIME,.5*MAXTIME_DISPLAYTIME),
-    sliderInput('mu',HTML('&mu; (mutation rate)'),0,.0002,.00005,step=.000001),
+    sliderInput('mu',HTML('&alpha; (mutation rate)'),0,.0005,.0002,step=.000001),
     sliderInput('lambda',HTML('&lambda; (replacement rate)'),0,.5,.01,step=.001),
     sliderInput('N','N (#stem cells/crypt)',3,20,10),
     sliderInput('numCrypt','Number of crypts in tissue',10000,200000,100000),
     sliderInput('P','Bias (.5 for neutral)',0,1,.5,step=.01),
-    sliderInput('numSim','Number of simulations to run',NUMRUNS_MIN,NUMRUNS_MAX,.5*(NUMRUNS_MIN+NUMRUNS_MAX)),
-    checkboxInput('showSim','Show simulated curve'),
-    downloadButton('genPdf','Download pdf of plots')
+    sliderInput('numSim','Number of simulations to run',NUMRUNS_MIN,NUMRUNS_MAX,.5*(NUMRUNS_MIN+NUMRUNS_MAX))
   )
 ))
