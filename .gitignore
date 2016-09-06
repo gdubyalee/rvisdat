@@ -38,3 +38,5 @@ vignettes/*.pdf
 /pcapp/raw/*
 !/pcapp/data/user_defined
 !/pcapp/cache/mcmc_user_defined
+/testdata/
+/testcsv/
