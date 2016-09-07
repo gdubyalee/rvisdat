@@ -3,7 +3,7 @@
 <plist version="1.0">
   <dict>
     <key>Label</key>
-    <string>com.example.app</string>
+    <string>r.vis.dat</string>
     <key>Program</key>
     <string>/srv/rvisdat/runapps.sh</string>
     <key>RunAtLoad</key>
