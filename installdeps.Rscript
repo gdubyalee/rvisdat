@@ -1,0 +1,7 @@
+#!/usr/bin/env Rscript
+print('Installing R based deps... need to ensure this works properly.')
+install.packages('devtools',repos='https://mirrors.ebi.ac.uk/CRAN')
+install.packages('shiny',repos='https://mirrors.ebi.ac.uk/CRAN')
+install.packages('dplyr',repos='https://mirrors.ebi.ac.uk/CRAN')
+install.packages('tidyr',repos='cran.uk.r-project.or://mirrors.ebi.ac.uk/CRANg')
+install.packages('ggplot2',repos='https://mirrors.ebi.ac.uk/CRAN')
