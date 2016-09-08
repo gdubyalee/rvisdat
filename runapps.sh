@@ -1,4 +1,5 @@
 #!/bin/sh
+cd /srv/rvisdat
 
 #start apps
 cd clapp
