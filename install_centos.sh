@@ -24,8 +24,9 @@ R CMD INSTALL InferCryptDrift
 cd ../..
 
 #modify firewall
-ufw allow 15123
-ufw allow 20321
+firewall-cmd --zone=public --add-port=15123/tcp --permanent
+firewall-cmd --zone=public --add-port=20321/tcp --permanent
+firewall-cmd --reload
 
 #Edit /etc/rc.local and add startup task
 sed -i -z 's/exit 0/\n\/srv\/rvisdat\/runapps.sh\nexit 0/'
