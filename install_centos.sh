@@ -24,10 +24,11 @@ R CMD INSTALL InferCryptDrift
 cd ../..
 
 #modify firewall
-firewall-cmd --zone=public --add-port=15123/tcp --permanent
-firewall-cmd --zone=public --add-port=20321/tcp --permanent
-firewall-cmd --reload
+iptables -A INPUT -m state --state NEW -p tcp --dport 15123 -j ACCEPT
+iptables -A INPUT -m state --state NEW -p tcp --dport 20321 -j ACCEPT
+/etc/init.d/iptables restart
 
 #Edit /etc/rc.local and add startup task
-sed -i -z 's/exit 0/\n\/srv\/rvisdat\/runapps.sh\nexit 0/'
+echo '\n\n\/srv\/rvisdat\/runapps.sh\n\nexit 0\n' >>/etc/rc.d/rc.local
+chmod +x /etc/rc.d/rc.local
 

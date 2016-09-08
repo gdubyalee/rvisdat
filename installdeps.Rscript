@@ -6,7 +6,11 @@ install.packages(
     'shiny',
     'dplyr',
     'tidyr',
-    'ggplot2'
+    'ggplot2',
+    'RcppArmadillo',
+    'foreach',
+    'doMC',
+    'gridExtra'
   ),
   repos='https://cran.rstudio.com'
 )
