@@ -10,7 +10,8 @@ install.packages(
     'RcppArmadillo',
     'foreach',
     'doMC',
-    'gridExtra'
+    'gridExtra',
+    'shinyBS'
   ),
   repos='https://cran.rstudio.com'
 )
