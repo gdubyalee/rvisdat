@@ -35,3 +35,5 @@ Loading required package: grid
 
 Listening on http://127.0.0.1:3180
 Note: the specification for S3 class “AsIs” in package ‘jsonlite’ seems equivalent to one from package ‘DBI’: not turning on duplicate class definitions for this class.
+
+Execution halted

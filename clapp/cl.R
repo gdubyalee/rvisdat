@@ -70,16 +70,11 @@ generatePlots<-function(input){
 }
 
 handleUpload<-function(uploadedDataset){
-  print('1')
   uploadedObj<-read.csv(uploadedDataset$datapath,stringsAsFactors=F)
-  print('1')
   uploadedObj$Location=factor(uploadedObj$Location,levels=unique(uploadedObj$Location))
-  print('1')
   #Assume filename is [NAME].rds for now
   saveName<-paste0(substr(uploadedDataset$name,1,nchar(uploadedDataset$name)-3),'rds')
-  print('1')
   saveRDS(uploadedObj,paste0('data/',saveName))
-  print('1')
 }
 
 #Constants for sliders
