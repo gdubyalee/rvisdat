@@ -52,6 +52,7 @@ handleUpload<-function(uploadedDataset){
   saveName<-paste0(file_path_sans_ext(uploadedDataset$name)[[1]],'.rds')
   if(saveName=='user_defined')return('Please choose another name!')
   if(is.null(uploadedObj)){print('Got a null...');return(NULL)}
+  print(uploadedObj)
   mcmc<-fitNeutralDrift(uploadedObj,strtoi(substring(names(uploadedObj),2)))
   storeNewParams('raw',saveName,mcmc)#saveRDS(mcmc,paste0('raw/raw_',name))
   storeNewParams('data',saveName,uploadedObj)#saveRDS(uploadedObj,paste0('data/',saveName))

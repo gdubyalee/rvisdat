@@ -1,0 +1,37 @@
+Loading required package: methods
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:plyr’:
+
+    arrange, count, desc, failwith, id, mutate, rename, summarise,
+    summarize
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Loading required package: foreach
+Loading required package: doMC
+Loading required package: iterators
+Loading required package: parallel
+Loading required package: DriftR
+Loading required package: tidyr
+Loading required package: ggplot2
+Loading required package: compiler
+Loading required package: gridExtra
+
+Attaching package: ‘gridExtra’
+
+The following object is masked from ‘package:dplyr’:
+
+    combine
+
+Loading required package: grid
+
+Listening on http://127.0.0.1:3180
+Note: the specification for S3 class “AsIs” in package ‘jsonlite’ seems equivalent to one from package ‘DBI’: not turning on duplicate class definitions for this class.

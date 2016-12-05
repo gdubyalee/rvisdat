@@ -34,9 +34,14 @@ vignettes/*.pdf
 
 #cache and data for pulse chase app - needs to be uploaded by user from ./testdata directory
 /pcapp/data/*
+/clapp/data/*
 /pcapp/cache/*
 /pcapp/raw/*
 !/pcapp/data/user_defined
+!/clapp/data/testallsarahdata.rds
 !/pcapp/cache/mcmc_user_defined
 /testdata/
 /testcsv/
+
+/pcapp/log/pcapp.log
+/clapp/log/clapp.log
