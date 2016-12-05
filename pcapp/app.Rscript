@@ -3,6 +3,8 @@ if(length(commandArgs(trailingOnly=TRUE))>2){
   print('usage: ./app.Rscript [<host> [<port>]]')
   q()
 }
+logFile<-file('log/pcapp.log',open='wt')
+sink(logFile,type='message')
 library(shiny)
 source('pc.R')
 host=if(length(commandArgs(trailingOnly=TRUE)))commandArgs(trailingOnly=TRUE)[1] else '127.0.0.1'
