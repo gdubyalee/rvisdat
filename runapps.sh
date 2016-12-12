@@ -8,6 +8,9 @@ cd clapp
 cd ../pcapp
 ./app.Rscript 0.0.0.0 20321 &
 
+cd ../chk
+./checkup.py &
+
 cd ..
 
 exit 0
