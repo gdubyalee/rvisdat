@@ -8,7 +8,7 @@ source('gi.R')
 host=if(length(commandArgs(trailingOnly=TRUE)))commandArgs(trailingOnly=TRUE)[1] else '127.0.0.1'
 port=if(length(commandArgs(trailingOnly=TRUE))==2)as.integer(commandArgs(trailingOnly=TRUE)[2]) else NULL
 runApp(
-  appDir=list('ui'=pcApp,'server'=serve),
+  appDir=list('ui'=giApp,'server'=serve),
   host=host,
   port=port
 )
