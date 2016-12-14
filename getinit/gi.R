@@ -7,6 +7,7 @@ library(dplyr)
 library(InferCryptDrift)
 library(DriftR)
 library(readxl)
+#source('sim.R')
 
 serve<-function(input,output){
   output$availableDatasets<-renderUI(
@@ -16,21 +17,21 @@ serve<-function(input,output){
   output$giPlots<-renderPlot({
     generatePlots(input)
   })
-  #observe({
-  #  input$newDataset
-  #  if(length(input$newDataset)){
-  #    handleUpload(input$newDataset)
-  #    output$availableDatasets<-renderUI(
-  #      radioButtons('dataset','Visualise datasets:',dir('dat'))
-  #    )
-  #  }
-  #})
-  #observe({
-  #  input$dataset
-  #  output$giPlots<-renderPlot({
-  #    loadPlots(input)
-  #  })
-  #})
+  observe({
+    input$newDataset
+    if(length(input$newDataset)){
+      handleUpload(input$newDataset)
+      #output$availableDatasets<-renderUI(
+      #  radioButtons('dataset','Visualise datasets:',dir('dat'))
+      #)
+    }
+  })
+  observe({
+    input$dataset
+    output$giPlots<-renderPlot({
+      generatePlots(input)
+    })
+  })
 }
 
 giApp<-shinyUI(fluidPage(
@@ -51,7 +52,7 @@ giApp<-shinyUI(fluidPage(
     sliderInput('mu',HTML('&alpha; (mutation rate)'),0,.0005,.0002,step=.000001),
     sliderInput('lambda',HTML('&lambda; (replacement rate)'),0,.5,.01,step=.001),
     sliderInput('N','N (#stem cells/crypt)',3,20,10),
-    radioButtons('plotToView','View Plot:',c(1,2,3,4))#,
+    radioButtons('plotToView','View Plot:',c('ppFieldSI'=1,'ppFieldColon'=2,'ppMouseColon'=3,'ppMouseSI'=4))#,
     #sliderInput('numCrypt','Number of crypts in tissue',10000,200000,100000),
     #sliderInput('P','Bias (.5 for neutral)',0,1,.5,step=.01),
     #sliderInput('numSim','Number of simulations to run',NUMRUNS_MIN,NUMRUNS_MAX,.5*(NUMRUNS_MIN+NUMRUNS_MAX))
@@ -131,7 +132,6 @@ handleUpload<-function(uploadedDataset){
     facet_grid(Clone~Genotype+Condition, scales = "free_x") +
     ggtitle("Counts - SI")
 
-  #Pulse chase simulation
   saveRDS(
     list(
       ppFieldColon,
