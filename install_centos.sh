@@ -4,7 +4,7 @@ echo 'Yum and rpm things...'
 yum update -y
 yum groupinstall -y 'development tools'
 yum install -y wget which libcurl-devel openssl-devel git
-rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
 yum install -y R
 
 echo 'Navigating to /srv...'
@@ -18,6 +18,14 @@ if [ ! -f rvisdat ]; then
   git clone https://github.com/gdubyalee/rvisdat.git
 fi
 cd rvisdat
+#Get a newer version of gcc
+wget -O /etc/yum.repos.d/slc6-devtoolset.repo \
+    http://linuxsoft.cern.ch/cern/devtoolset/slc6-devtoolset.repo
+wget -O /etc/yum.repos.d/slc5-devtoolset.repo \
+    http://linuxsoft.cern.ch/cern/devtoolset/slc5-devtoolset.repo
+
+yum install -y devtoolset-2
+
 echo 'Installing dependencies...'
 ./installdeps.Rscript
 #install DriftR, InferCryptDrift
