@@ -111,17 +111,19 @@ sim1DCrypt<-function(startConf,lambda,numSim,times){
 
 
 #startConf  = c(1, 0, 0, 1, 0, 0, 0)
-nStartingConfig<-100
-numSim<-100
+nStartingConfig<-1000
+numSim<-10000
 nStem<-7
 lambda<-.2
+finTime<-30
 time_points<-1:finTime
 qq=c()
-fracs<-seq(0,1,.01)
+fracs<-seq(0,.5,.05)
 for(fracExpressing in fracs){
   qq <-append(
     qq,
     list(foreach(i = 1:nStartingConfig, .combine = "+")%dopar%{
+      print(paste0('Run ',i))
       #We should sample _with_ replacement...
       #Better still just give a proportion of cells expressing
       startConf  <- runif(nStem)<fracExpressing
@@ -131,12 +133,14 @@ for(fracExpressing in fracs){
 }
 
 fin<-lapply(1:length(fracs),function(i){qq[i][[1]][,finTime]})
-propPar<-lapply(fin,function(entry){sum(entry[2:nStem])})
-propClone<-lapply(fin,function(entry){sum(entry[nStem+1])})
+propPar<-unlist(lapply(fin,function(entry){sum(entry[2:nStem])}))
+propClone<-unlist(lapply(fin,function(entry){sum(entry[nStem+1])}))
+print(head(propPar))
+print(head(propClone))
 
 library(ggplot2)
 dat<-data.frame(propPar=propPar,propClone=propClone,fracs=fracs)
 
-plt<-ggplot(dat)+geom_line(aes(x=fracs,y=propPar))
+plt<-ggplot(dat,aes(y=propPar,x=fracs))+geom_line()
 print(plt)
 

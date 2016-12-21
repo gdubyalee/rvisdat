@@ -23,7 +23,7 @@ cd ../..
 #ufw allow 20321
 
 #Edit /etc/rc.local and add startup task
-sed -i 's/exit 0/\n\/srv\/rvisdat\/runapps.sh\nexit 0/' /etc/rc.local
+sed -i 's/\nexit 0$/\n\/srv\/rvisdat\/runapps.sh\nexit 0/' /etc/rc.local
 chmod +x /etc/rc.local
 
 exit 0
