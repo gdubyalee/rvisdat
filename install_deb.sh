@@ -1,6 +1,6 @@
 #!/bin/sh
 #Install dependencies, something like
-apt-get -y install gcc r-base-dev git
+yes|apt-get --assume-yes install gcc r-base-dev git
 cd /
 mkdir /srv
 cd srv
