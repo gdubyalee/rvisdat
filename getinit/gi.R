@@ -7,6 +7,7 @@ library(dplyr)
 library(InferCryptDrift)
 library(DriftR)
 library(readxl)
+library(rmutil)
 #source('sim.R')
 
 serve<-function(input,output){
@@ -21,9 +22,10 @@ serve<-function(input,output){
     input$newDataset
     if(length(input$newDataset)){
       handleUpload(input$newDataset)
-      #output$availableDatasets<-renderUI(
-      #  radioButtons('dataset','Visualise datasets:',dir('dat'))
-      #)
+      output$availableDatasets<-renderUI(
+        #If dir('dat') is an empty string then Shiny fails in an opaque manner
+        radioButtons('dataset','Visualise datasets:',dir('dat'))
+      )
     }
   })
   observe({
@@ -52,6 +54,7 @@ giApp<-shinyUI(fluidPage(
     #sliderInput('mu',HTML('&alpha; (mutation rate)'),0,.0005,.0002,step=.000001),
     sliderInput('lambda',HTML('&lambda; (replacement rate)'),0,.5,.01,step=.001),
     sliderInput('N','N (#stem cells/crypt)',3,20,10),
+    sliderInput('T','Time since treatment',5,100,1),
     radioButtons('plotToView','View Plot:',c('ppFieldSI'=1,'ppFieldColon'=2,'ppMouseColon'=3,'ppMouseSI'=4))#,
     #sliderInput('numCrypt','Number of crypts in tissue',10000,200000,100000),
     #sliderInput('P','Bias (.5 for neutral)',0,1,.5,step=.01),
@@ -141,10 +144,6 @@ handleUpload<-function(uploadedDataset){
     ),
     paste0('dat/',uploadedDataset$name,'.rds')
   )
-  output$availableDatasets<-renderUI(
-    #If dir('dat') is an empty string then Shiny fails in an opaque manner
-    radioButtons('dataset','Visualise datasets:',dir('dat'))
-  )
 }
 
 generatePlots<-function(input){
@@ -152,4 +151,31 @@ generatePlots<-function(input){
     d<-readRDS(paste0('dat/',input$dataset))
     return(d[as.numeric(input$plotToView)])
   }
+}
+
+solveIVP<-function(init,lambda,Ns,t){
+  #Generate matrix
+  A<-matrix(0,nrow=Ns+1,ncol=Ns+1)
+  for(i in 1:Ns){
+    A[i,i]=-2
+    A[i,i+1]=1
+    A[i+1,i]=1
+  }
+  A[,Ns+1]=A[,1]=0
+  return(mexp(A,lambda*t)%*%init)
+}
+
+calculateNearestProp<-function(Ns,lambda,t,mean,par=T){
+  fracPar<-c()
+  fracTot<-c()
+  props<-seq(0,1,.05)
+  for(prop in props){
+    init<-binom(0:Ns,Ns,prop)
+    fin<-solveIVP(init,lambda,Ns,t)
+    fracPar<-c(fracPar,sum(fin[2:Ns]))
+    fracTot<-c(fracPar,sum(fin[Ns+1]))
+  }
+  #return the line closest to our mean
+  if(par)return(props[which.min(abs(fracPar-mean))])
+  else return(props[which.min(abs(fracTot-mean))])
 }
