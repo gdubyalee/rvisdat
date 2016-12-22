@@ -55,6 +55,7 @@ giApp<-shinyUI(fluidPage(
     sliderInput('lambda',HTML('&lambda; (replacement rate)'),0,2,.2,step=.001),
     sliderInput('N','N (#stem cells/crypt)',3,20,5),
     sliderInput('T','Time since treatment',5,100,30),
+    sliderInput('pMax','Maximum proportion to consider',.005,1,.1,step=.001),
     radioButtons('plotToView','View Plot:',c('ppFieldSI'=1,'ppFieldColon'=2,'ppMouseColon'=3,'ppMouseSI'=4,'Initial relationship'=5))#,
     #sliderInput('numCrypt','Number of crypts in tissue',10000,200000,100000),
     #sliderInput('P','Bias (.5 for neutral)',0,1,.5,step=.01),
@@ -150,15 +151,13 @@ handleUpload<-function(uploadedDataset,input){
     ggtitle("Counts - SI")+
     geom_hline(aes(yintercept=meanMedian),size=.7,lty=2)
 
-  initialRelation<-initialRelationPlot(lambda,Ns,t,max(allProbsMouse$p_median))
 
   saveRDS(
     list(
       ppFieldColon,
       ppFieldSI,
       ppMouseColon,
-      ppMouseSI,
-      initialRelation
+      ppMouseSI
     ),
     paste0('dat/',uploadedDataset$name,'.rds')
   )
@@ -166,6 +165,7 @@ handleUpload<-function(uploadedDataset,input){
 
 generatePlots<-function(input){
   if(!is.null(input$dataset)){
+    if(input$plotToView==5)return(initialRelationPlot(input$lambda,input$N,input$T,input$pMax))
     d<-readRDS(paste0('dat/',input$dataset))
     return(d[as.numeric(input$plotToView)])
   }
@@ -199,7 +199,7 @@ initialRelationPlot<-function(lambda,Ns,t,probMax){
     data.frame('fraction_expressing_initially'=probs,fraction_crypts_end=fracFull,type='Fraction Clonal')
   )%>%
   ggplot()+
-    geom_line(aes(x=fraction_expressing_initially,y=fraction_crypts_end,col=type,xlabel='Initial proportion of cells expressing',ylabel='Crypt frequency'))+
+    geom_line(aes(x=fraction_expressing_initially,y=fraction_crypts_end,col=type))+
     aes(ylabel='Fraction expressing initially')+
     ggtitle(paste0('Proportion of partial and monoclonal crypts for Ns=',Ns,', T=',t,', \\lambda=',lambda))
 }
