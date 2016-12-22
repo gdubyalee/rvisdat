@@ -195,11 +195,11 @@ initialRelationPlot<-function(lambda,Ns,t,probMax){
     fracFull[length(fracFull)+1]<-sln[Ns+1]
   }
   bind_rows(
-    data.frame('fraction_expressing_initially'=probs,frac=fracPar,type='Fraction Partial'),
-    data.frame('fraction_expressing_initially'=probs,frac=fracFull,type='Fraction Clonal')
+    data.frame('fraction_expressing_initially'=probs,fraction_crypts_end=fracPar,type='Fraction Partial'),
+    data.frame('fraction_expressing_initially'=probs,fraction_crypts_end=fracFull,type='Fraction Clonal')
   )%>%
   ggplot()+
-    geom_line(aes(x=fraction_expressing_initially,y=frac,col=type,xlabel='Initial proportion of cells expressing',ylabel='Crypt frequency'))+
+    geom_line(aes(x=fraction_expressing_initially,y=fraction_crypts_end,col=type,xlabel='Initial proportion of cells expressing',ylabel='Crypt frequency'))+
     aes(ylabel='Fraction expressing initially')+
     ggtitle(paste0('Proportion of partial and monoclonal crypts for Ns=',Ns,', T=',t,', \\lambda=',lambda))
 }
