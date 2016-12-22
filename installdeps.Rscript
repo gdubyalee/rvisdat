@@ -11,6 +11,7 @@ install.packages(
     'foreach',
     'doMC',
     'gridExtra',
+    'rmutil',
     'shinyBS'
   ),
   repos='https://cran.rstudio.com'
