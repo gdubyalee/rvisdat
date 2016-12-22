@@ -190,7 +190,7 @@ initialRelationPlot<-function(lambda,Ns,t,probMax){
   fracFull<-c()
   for(pExpressing in probs){
     ic<-dbinom(0:Ns,Ns,pExpressing)
-    sln<-solveIVP(ic,lambda,Ns,30)
+    sln<-solveIVP(ic,lambda,Ns,t)
     fracPar[length(fracPar)+1]<-sum(sln[2:Ns])
     fracFull[length(fracFull)+1]<-sln[Ns+1]
   }
