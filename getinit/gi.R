@@ -150,7 +150,7 @@ handleUpload<-function(uploadedDataset,input){
     ggtitle("Counts - SI")+
     geom_hline(aes(yintercept=meanMedian),size=.7,lty=2)
 
-  initialRelation<-initialRelationPlot(lambda,Ns,t)
+  initialRelation<-initialRelationPlot(lambda,Ns,t,max(allProbsMouse$p_median))
 
   saveRDS(
     list(
@@ -183,8 +183,9 @@ solveIVP<-function(init,lambda,Ns,t){
   return(mexp(A,lambda*t)%*%init)
 }
 
-initialRelationPlot<-function(lambda,Ns,t){
-  probs<-seq(0,1,0.02)
+initialRelationPlot<-function(lambda,Ns,t,probMax){
+  probMax<-min(probMax,1)
+  probs<-seq(0,probMax,length.out=50)
   fracPar<-c()
   fracFull<-c()
   for(pExpressing in probs){
