@@ -49,7 +49,7 @@ giApp<-shinyUI(fluidPage(
     )
   ),
   flowLayout(
-    sliderInput('mu',HTML('&alpha; (mutation rate)'),0,.0005,.0002,step=.000001),
+    #sliderInput('mu',HTML('&alpha; (mutation rate)'),0,.0005,.0002,step=.000001),
     sliderInput('lambda',HTML('&lambda; (replacement rate)'),0,.5,.01,step=.001),
     sliderInput('N','N (#stem cells/crypt)',3,20,10),
     radioButtons('plotToView','View Plot:',c('ppFieldSI'=1,'ppFieldColon'=2,'ppMouseColon'=3,'ppMouseSI'=4))#,
@@ -140,6 +140,10 @@ handleUpload<-function(uploadedDataset){
       ppMouseSI
     ),
     paste0('dat/',uploadedDataset$name,'.rds')
+  )
+  output$availableDatasets<-renderUI(
+    #If dir('dat') is an empty string then Shiny fails in an opaque manner
+    radioButtons('dataset','Visualise datasets:',dir('dat'))
   )
 }
 

@@ -32,8 +32,14 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
+# vim swapfiles
+
+*.swp
+*.swo
+
 #cache and data for pulse chase app - needs to be uploaded by user from ./testdata directory
 /pcapp/data/*
+/getinit/dat/*
 /clapp/data/*
 /pcapp/cache/*
 /pcapp/raw/*

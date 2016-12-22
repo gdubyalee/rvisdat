@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-#This isn't correct as such, uses equations that assume 1d drift.
+#This isn't correct as such, uses equations that assume 1d drift w. 1 connected blob for clonal bit.
 
 #
 
