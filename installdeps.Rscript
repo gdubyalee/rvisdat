@@ -12,7 +12,8 @@ install.packages(
     'doMC',
     'gridExtra',
     'rmutil',
-    'shinyBS'
+    'shinyBS',
+    'gdata'
   ),
   repos='https://cran.rstudio.com'
 )

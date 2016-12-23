@@ -7,6 +7,7 @@ library(dplyr)
 library(InferCryptDrift)
 library(DriftR)
 library(readxl)
+library(gdata)
 library(rmutil)
 #source('sim.R')
 
@@ -47,7 +48,14 @@ giApp<-shinyUI(fluidPage(
       downloadButton('genPdf','Download pdf of plots')
     ),
     mainPanel(
-      plotOutput('giPlots')
+      plotOutput('giPlots'),
+      bsModal(
+        'Uploading data',
+        '',
+        'xlsInfo',
+        size='large',
+        ''
+      )
     )
   ),
   flowLayout(
@@ -79,7 +87,7 @@ handleUpload<-function(uploadedDataset,input){
   uploadedDataset$datapath=paste0(uploadedDataset$datapath,'.xls')
   #Read data from all sheets
   for(sheet in excel_sheets(uploadedDataset$datapath)){
-    dati<-read_excel(uploadedDataset$datapath,sheet)%>%
+    dati<-read.xls(uploadedDataset$datapath,sheet)%>%
       gather(mouse,count,starts_with('Mouse_'))%>%
       spread(Type,count)%>%
       gather(Clone,Counts,Partial,Whole)%>%
